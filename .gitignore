@@ -219,5 +219,6 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Dados do projeto (não versionar)
-data/
+# Dados do projeto (nï¿½o versionar)
+/data/
+/models/

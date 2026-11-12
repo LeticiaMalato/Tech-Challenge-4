@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from credit_monitoring import config
-from credit_monitoring.modeling.train import build_model, prepare_features
+from credit_monitoring.modeling.train import FEATURES, build_model, prepare_features
 
 
 def synthetic_data(n: int = 200, seed: int = 0) -> tuple[pd.DataFrame, pd.Series]:
@@ -42,3 +42,8 @@ def test_unseen_category_does_not_break_prediction():
     X_new = X.head(1).copy()
     X_new["NAME_INCOME_TYPE"] = "Businessman"  # never seen in training
     assert len(model.predict_proba(X_new)) == 1
+
+
+def test_gender_is_not_a_model_feature():
+    """LGPD non-discrimination decision, enforced automatically."""
+    assert "CODE_GENDER" not in FEATURES

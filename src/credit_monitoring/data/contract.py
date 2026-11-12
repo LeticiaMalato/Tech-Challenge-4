@@ -1,5 +1,12 @@
-"""Data contract for raw credit application data (Pandera)."""
+"""Data contract for raw credit application data (Pandera).
 
+Policy:
+- Row-level failures (e.g. an underage client) quarantine only that row.
+- Batch-level failures (missing column, wrong type, non-unique index)
+  reject the whole batch, because no row in it can be trusted.
+"""
+
+import numpy as np
 import pandas as pd
 import pandera.pandas as pa
 
@@ -9,6 +16,10 @@ from credit_monitoring import config
 MIN_DAYS_BIRTH = -config.MAX_AGE * config.DAYS_PER_YEAR
 MAX_DAYS_BIRTH = -config.MIN_AGE * config.DAYS_PER_YEAR
 NOT_EMPLOYED_INCOME_TYPES = ["Pensioner", "Unemployed"]
+EXT_SOURCE_COLUMNS = ["EXT_SOURCE_1", "EXT_SOURCE_2", "EXT_SOURCE_3"]
+
+BATCH = "<batch>"  # label for failures that belong to the whole batch
+CASE_COLUMNS = ["index", "column", "check"]
 
 
 #  Dataframe-level rules (more than one column)
@@ -37,26 +48,36 @@ def annuity_within_income(df: pd.DataFrame) -> pd.Series:
     return df["AMT_ANNUITY"].isna() | (df["AMT_ANNUITY"] <= df["AMT_INCOME_TOTAL"])
 
 
-#  Blocking rules: a failing record is rejected
+#  Blocking rules
 
 blocking_schema = pa.DataFrameSchema(
     columns={
         # Rule 1: age between MIN_AGE and MAX_AGE
         "DAYS_BIRTH": pa.Column(
+            int,
             nullable=False,
             checks=pa.Check.in_range(MIN_DAYS_BIRTH, MAX_DAYS_BIRTH),
         ),
         # Rule 2: unique, non-null ID; only the repeated occurrence is reported
         config.ID_COLUMN: pa.Column(
-            nullable=False, unique=True, report_duplicates="exclude_first"
+            int, nullable=False, unique=True, report_duplicates="exclude_first"
         ),
         # Rule 4: income present and positive
-        "AMT_INCOME_TOTAL": pa.Column(nullable=False, checks=pa.Check.gt(0)),
-        # Columns required by the dataframe-level rules
+        "AMT_INCOME_TOTAL": pa.Column(float, nullable=False, checks=pa.Check.gt(0)),
+        # Model features: credit amount positive, external scores between 0 and 1
+        "AMT_CREDIT": pa.Column(float, nullable=False, checks=pa.Check.gt(0)),
+        "AMT_ANNUITY": pa.Column(float, nullable=True),
+        **{
+            col: pa.Column(float, nullable=True, checks=pa.Check.in_range(0, 1))
+            for col in EXT_SOURCE_COLUMNS
+        },
+        # Car: valid flag and non-negative age (null = no car)
         "FLAG_OWN_CAR": pa.Column(nullable=False, checks=pa.Check.isin(["Y", "N"])),
-        "OWN_CAR_AGE": pa.Column(nullable=True),
-        "DAYS_EMPLOYED": pa.Column(nullable=False),
+        "OWN_CAR_AGE": pa.Column(float, nullable=True, checks=pa.Check.ge(0)),
+        "DAYS_EMPLOYED": pa.Column(int, nullable=False),
         "NAME_INCOME_TYPE": pa.Column(nullable=False),
+        # Target is optional (production may arrive without labels)
+        config.TARGET_COLUMN: pa.Column(required=False, checks=pa.Check.isin([0, 1])),
     },
     checks=[
         pa.Check(no_duplicate_records, name="no_duplicate_records"),
@@ -66,11 +87,10 @@ blocking_schema = pa.DataFrameSchema(
     strict=False,
 )
 
-#  Alert rules: a failing record passes, but is flagged
+#  Alert rules: the record passes, but is flagged
 
 alert_schema = pa.DataFrameSchema(
     columns={
-        # Rule 7: income above the reference p99.9 (nulls are ignored)
         "AMT_INCOME_TOTAL": pa.Column(
             nullable=True,
             checks=pa.Check(
@@ -78,12 +98,10 @@ alert_schema = pa.DataFrameSchema(
                 name="income_above_threshold",
             ),
         ),
-        # Rule 9: car age above the suspicious-peak limit (no car = null, ignored)
         "OWN_CAR_AGE": pa.Column(
             nullable=True,
             checks=pa.Check(
-                lambda s: s <= config.CAR_AGE_ALERT,
-                name="car_age_above_limit",
+                lambda s: s <= config.CAR_AGE_ALERT, name="car_age_above_limit"
             ),
         ),
         "AMT_ANNUITY": pa.Column(nullable=True),
@@ -93,29 +111,49 @@ alert_schema = pa.DataFrameSchema(
 )
 
 
+def _empty_cases() -> pd.DataFrame:
+    return pd.DataFrame(columns=CASE_COLUMNS)
+
+
 def _failure_cases(schema: pa.DataFrameSchema, df: pd.DataFrame) -> pd.DataFrame:
-    """One row per (record, rule) that failed the schema."""
+    """One row per (record, rule) that failed. Batch-level failures get index BATCH."""
     try:
         schema.validate(df, lazy=True)
-        return pd.DataFrame(columns=["index", "check"])
+        return _empty_cases()
     except pa.errors.SchemaErrors as err:
-        cases = err.failure_cases.dropna(subset=["index"])
-        # Dataframe-level rules report every column of a failing row: keep one line per rule
-        return cases.drop_duplicates(subset=["index", "check"])[["index", "check"]]
+        cases = err.failure_cases.copy()
+        # Failures without a row index belong to the whole batch: keep them, never drop them
+        cases["index"] = (
+            cases["index"].astype(object).where(cases["index"].notna(), BATCH)
+        )
+        return cases.drop_duplicates(subset=["index", "check"])[CASE_COLUMNS]
 
 
 def validate_batch(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Validate a raw batch.
 
     Returns the valid rows, the blocked cases and the alert cases.
+    If any failure belongs to the whole batch, no row is accepted.
     """
+    # Bug 2: with a repeated index label, dropping one row would also drop its twin
+    if not df.index.is_unique:
+        blocked = pd.DataFrame(
+            [{"index": BATCH, "column": None, "check": "unique_index"}]
+        )
+        return df.iloc[0:0], blocked, _empty_cases()
+
     blocked = _failure_cases(blocking_schema, df)
+
+    # Bug 1: a structural failure rejects the whole batch
+    if (blocked["index"] == BATCH).any():
+        return df.iloc[0:0], blocked, _empty_cases()
+
     alerts = _failure_cases(alert_schema, df)
     valid = df.drop(index=blocked["index"].unique())
     return valid, blocked, alerts
 
 
-# Invalid batch
+#  Invalid batch (one controlled error per row)
 
 
 def build_invalid_batch(reference: pd.DataFrame) -> pd.DataFrame:
@@ -144,16 +182,19 @@ def build_invalid_batch(reference: pd.DataFrame) -> pd.DataFrame:
     duplicate_record[config.ID_COLUMN] = reference[config.ID_COLUMN].max() + 1
 
     zero_income = row(4)
-    zero_income["AMT_INCOME_TOTAL"] = 0
+    zero_income["AMT_INCOME_TOTAL"] = 0.0
 
-    car_inconsistent = row(5)
-    car_inconsistent["OWN_CAR_AGE"] = None
+    missing_income = row(5)
+    missing_income["AMT_INCOME_TOTAL"] = np.nan
 
-    employment_inconsistent = row(6)
+    car_inconsistent = row(6)
+    car_inconsistent["OWN_CAR_AGE"] = np.nan
+
+    employment_inconsistent = row(7)
     employment_inconsistent["DAYS_EMPLOYED"] = config.DAYS_EMPLOYED_SENTINEL
 
-    car_age_alert = row(7)
-    car_age_alert["OWN_CAR_AGE"] = 64
+    car_age_alert = row(8)
+    car_age_alert["OWN_CAR_AGE"] = 64.0
 
     batch = pd.concat(
         [
@@ -163,6 +204,7 @@ def build_invalid_batch(reference: pd.DataFrame) -> pd.DataFrame:
             duplicate_id,
             duplicate_record,
             zero_income,
+            missing_income,
             car_inconsistent,
             employment_inconsistent,
             car_age_alert,
@@ -175,6 +217,7 @@ def build_invalid_batch(reference: pd.DataFrame) -> pd.DataFrame:
         "duplicate_id",
         "duplicate_record",
         "zero_income",
+        "missing_income",
         "car_inconsistent",
         "employment_inconsistent",
         "car_age_alert",
@@ -202,3 +245,9 @@ if __name__ == "__main__":
     print("Accepted:", list(valid_batch.index))
     print("Alerts:")
     print(alerts_batch.to_string(index=False))
+
+    # 3. Structural failure: a batch without a required column is rejected as a whole
+    broken = batch.drop(columns=["AMT_INCOME_TOTAL"])
+    valid_broken, blocked_broken, _ = validate_batch(broken)
+    print("\nBatch without AMT_INCOME_TOTAL - accepted rows:", len(valid_broken))
+    print(blocked_broken.to_string(index=False))

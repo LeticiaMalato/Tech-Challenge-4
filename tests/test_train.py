@@ -4,7 +4,14 @@ import numpy as np
 import pandas as pd
 
 from credit_monitoring import config
-from credit_monitoring.modeling.train import FEATURES, build_model, prepare_features
+from credit_monitoring.modeling.train import (
+    FEATURES,
+    build_model,
+    compute_threshold,
+    decide,
+    evaluate_policy,
+    prepare_features,
+)
 
 
 def synthetic_data(n: int = 200, seed: int = 0) -> tuple[pd.DataFrame, pd.Series]:
@@ -47,3 +54,33 @@ def test_unseen_category_does_not_break_prediction():
 def test_gender_is_not_a_model_feature():
     """LGPD non-discrimination decision, enforced automatically."""
     assert "CODE_GENDER" not in FEATURES
+
+
+def test_policy_respects_approval_rate_and_separates_risk():
+    rng = np.random.default_rng(0)
+    proba = rng.uniform(size=10_000)
+    # Synthetic signal: higher predicted risk → higher chance of default
+    y_true = (rng.uniform(size=10_000) < proba * 0.3).astype(int)
+
+    threshold = compute_threshold(proba, 0.9)
+    policy = evaluate_policy(y_true, proba, threshold)
+
+    assert abs(policy["approval_rate"] - 0.9) < 0.01
+    assert policy["default_rate_approved"] < policy["default_rate_rejected"]
+
+
+def test_decide_works_without_labels():
+    approved = decide(np.array([0.05, 0.20, 0.50]), threshold=0.17)
+    assert approved.tolist() == [True, False, False]
+
+
+def test_policy_without_defaults_returns_none_instead_of_nan():
+    proba = np.array([0.05, 0.10, 0.50])
+    policy = evaluate_policy(np.array([0, 0, 0]), proba, threshold=0.17)
+    assert policy["recall_risk"] is None
+
+
+def test_policy_with_everyone_approved_returns_none_for_rejected():
+    proba = np.array([0.05, 0.10])
+    policy = evaluate_policy(np.array([0, 1]), proba, threshold=0.99)
+    assert policy["default_rate_rejected"] is None

@@ -55,6 +55,36 @@ def prepare_features(df: pd.DataFrame) -> pd.DataFrame:
     return X
 
 
+def compute_threshold(train_proba: np.ndarray, approval_rate: float) -> float:
+    """Risk cut-off that approves `approval_rate` of the TRAINING clients (then frozen)."""
+    return float(np.quantile(train_proba, approval_rate))
+
+
+def decide(proba: np.ndarray, threshold: float) -> np.ndarray:
+    """Decision without labels: True = approved (risk below the frozen threshold)."""
+    return proba < threshold
+
+
+def _safe_rate(numerator: float, denominator: float) -> float | None:
+    """A rate, or None when it is undefined (empty group, no defaults)."""
+    return float(numerator / denominator) if denominator else None
+
+
+def evaluate_policy(y_true: np.ndarray, proba: np.ndarray, threshold: float) -> dict:
+    """Evaluate a frozen threshold. Requires labels, which arrive late in production."""
+    approved = decide(proba, threshold)
+    rejected = ~approved
+    return {
+        "threshold": threshold,
+        "approval_rate": float(approved.mean()),
+        "default_rate_approved": _safe_rate(y_true[approved].sum(), approved.sum()),
+        # Also the precision of the "risk" class: rejected clients who really default
+        "default_rate_rejected": _safe_rate(y_true[rejected].sum(), rejected.sum()),
+        # Share of all defaulters that the policy rejects (recall of the "risk" class)
+        "recall_risk": _safe_rate(y_true[rejected].sum(), y_true.sum()),
+    }
+
+
 if __name__ == "__main__":
     # 1. Same path as production data: raw → contract → features
     raw = pd.read_csv(config.REFERENCE_RAW_PATH)
@@ -98,32 +128,21 @@ if __name__ == "__main__":
     train_proba = model.predict_proba(X_train)[:, 1]
     y_true = y_test.to_numpy()
 
-    def evaluate_policy(rate: float) -> dict:
-        """Approve clients whose risk is below the train quantile for this approval rate."""
-        threshold = float(np.quantile(train_proba, rate))
-        approved = proba < threshold
-        rejected = ~approved
-        return {
-            "approval_rate_target": rate,
-            "threshold": threshold,
-            "approval_rate_test": float(approved.mean()),
-            "default_rate_approved": float(y_true[approved].mean()),
-            "default_rate_rejected": float(y_true[rejected].mean()),
-            "precision_risk": float(
-                y_true[rejected].mean()
-            ),  # rejected who really default
-            "recall_risk": float(
-                y_true[rejected].sum() / y_true.sum()
-            ),  # defaulters caught
-        }
-
-    comparison = pd.DataFrame(
-        [evaluate_policy(r) for r in config.APPROVAL_RATES_TO_COMPARE]
-    )
+    rows = []
+    for rate in config.APPROVAL_RATES_TO_COMPARE:
+        threshold = compute_threshold(train_proba, rate)
+        rows.append(
+            {"approval_rate_target": rate, **evaluate_policy(y_true, proba, threshold)}
+        )
+    comparison = pd.DataFrame(rows)
     print("\nApproval policy comparison (test set):")
     print(comparison.round(4).to_string(index=False))
 
-    policy = evaluate_policy(config.APPROVAL_RATE)
+    threshold = compute_threshold(train_proba, config.APPROVAL_RATE)
+    policy = {
+        "approval_rate_target": config.APPROVAL_RATE,
+        **evaluate_policy(y_true, proba, threshold),
+    }
 
     # 6. Save the model and the baseline metrics (the reference for monitoring)
     config.MODELS_DIR.mkdir(exist_ok=True)

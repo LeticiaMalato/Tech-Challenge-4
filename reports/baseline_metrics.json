@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-11-12T14:58:53.224004+00:00",
+  "trained_at": "2026-11-12T17:37:55.069872+00:00",
   "model": "LogisticRegression",
   "random_state": 42,
   "reference_rows": 246008,
@@ -12,10 +12,9 @@
   "decision_policy": {
     "approval_rate_target": 0.9,
     "threshold": 0.1694929649930989,
-    "approval_rate_test": 0.9008556736651694,
+    "approval_rate": 0.9008556736651694,
     "default_rate_approved": 0.06294700268483631,
     "default_rate_rejected": 0.24231242312423124,
-    "precision_risk": 0.24231242312423124,
     "recall_risk": 0.297583081570997
   },
   "features": [

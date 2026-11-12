@@ -11,7 +11,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from credit_monitoring import config
-from credit_monitoring.data.contract import validate_batch
+from credit_monitoring.data.contract import BATCH, is_batch_rejected, validate_batch
 from credit_monitoring.data.features import build_features
 
 FEATURES = config.NUMERIC_FEATURES + config.CATEGORICAL_FEATURES
@@ -55,6 +55,11 @@ if __name__ == "__main__":
     # 1. Same path as production data: raw → contract → features
     raw = pd.read_csv(config.REFERENCE_RAW_PATH)
     valid, blocked, _ = validate_batch(raw)
+    if is_batch_rejected(blocked):
+        raise SystemExit(
+            "Reference batch rejected by the data contract:\n"
+            + blocked.to_string(index=False)
+        )
     data = build_features(valid)
 
     X = prepare_features(data)
@@ -75,9 +80,8 @@ if __name__ == "__main__":
 
     # 4. Evaluate on the test set (threshold-free metrics)
     proba = model.predict_proba(X_test)[:, 1]
-    print(
-        f"Reference rows: {len(raw)} | blocked by contract: {blocked['index'].nunique()}"
-    )
+    blocked_rows = blocked.loc[blocked["index"] != BATCH, "index"].nunique()
+    print(f"Reference rows: {len(raw)} | blocked by contract: {blocked_rows}")
     print(f"Train: {len(X_train)} | Test: {len(X_test)}")
     print(f"ROC-AUC: {roc_auc_score(y_test, proba):.4f}")
     print(

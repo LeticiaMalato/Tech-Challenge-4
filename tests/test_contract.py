@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 from credit_monitoring import config
-from credit_monitoring.data.contract import validate_batch
+from credit_monitoring.data.contract import build_invalid_batch, validate_batch
 
 
 def valid_row(**overrides) -> pd.DataFrame:
@@ -193,3 +193,38 @@ def test_negative_credit_is_blocked():
     valid, blocked, _ = validate_batch(valid_row(AMT_CREDIT=-1000.0))
     assert valid.empty
     assert_blocked_only_by(blocked, "greater_than")
+
+
+def test_blocked_rows_are_not_counted_as_alerts():
+    # zero income would also trigger "annuity above income", but the row is blocked
+    valid, blocked, alerts = validate_batch(valid_row(AMT_INCOME_TOTAL=0.0))
+    assert valid.empty
+    assert_blocked_only_by(blocked, "greater_than")
+    assert alerts.empty
+
+
+def synthetic_reference(n: int = 12) -> pd.DataFrame:
+    """Distinct valid car owners, enough to build the invalid batch."""
+    rows = [
+        valid_row(
+            SK_ID_CURR=i, DAYS_BIRTH=-12000 - i, FLAG_OWN_CAR="Y", OWN_CAR_AGE=5.0
+        )
+        for i in range(1, n + 1)
+    ]
+    return pd.concat(rows, ignore_index=True)
+
+
+def test_invalid_batch_end_to_end():
+    batch = build_invalid_batch(synthetic_reference())
+    valid, blocked, alerts = validate_batch(batch)
+    assert set(valid.index) == {"valid_1", "valid_2", "car_age_alert"}
+    assert set(blocked["index"]) == {
+        "age_under_18",
+        "duplicate_id",
+        "duplicate_record",
+        "zero_income",
+        "missing_income",
+        "car_inconsistent",
+        "employment_inconsistent",
+    }
+    assert set(alerts["index"]) == {"car_age_alert"}

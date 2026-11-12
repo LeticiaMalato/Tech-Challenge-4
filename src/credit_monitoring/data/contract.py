@@ -22,6 +22,11 @@ BATCH = "<batch>"  # label for failures that belong to the whole batch
 CASE_COLUMNS = ["index", "column", "check"]
 
 
+def is_batch_rejected(blocked: pd.DataFrame) -> bool:
+    """True when a failure belongs to the whole batch (missing column, wrong type...)."""
+    return bool((blocked["index"] == BATCH).any())
+
+
 #  Dataframe-level rules (more than one column)
 
 
@@ -134,8 +139,8 @@ def validate_batch(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.Dat
 
     Returns the valid rows, the blocked cases and the alert cases.
     If any failure belongs to the whole batch, no row is accepted.
+    Alerts are computed only on accepted rows.
     """
-    # Bug 2: with a repeated index label, dropping one row would also drop its twin
     if not df.index.is_unique:
         blocked = pd.DataFrame(
             [{"index": BATCH, "column": None, "check": "unique_index"}]
@@ -143,13 +148,11 @@ def validate_batch(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.Dat
         return df.iloc[0:0], blocked, _empty_cases()
 
     blocked = _failure_cases(blocking_schema, df)
-
-    # Bug 1: a structural failure rejects the whole batch
-    if (blocked["index"] == BATCH).any():
+    if is_batch_rejected(blocked):
         return df.iloc[0:0], blocked, _empty_cases()
 
-    alerts = _failure_cases(alert_schema, df)
     valid = df.drop(index=blocked["index"].unique())
+    alerts = _failure_cases(alert_schema, valid)
     return valid, blocked, alerts
 
 

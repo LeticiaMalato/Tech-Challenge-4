@@ -29,8 +29,7 @@ REFERENCE_CLEAN_PATH = DATA_DIR / "reference_clean.csv"
 # Contract parameters
 DAYS_EMPLOYED_SENTINEL = 365243  # "not employed" code (pensioners / unemployed)
 CAR_AGE_ALERT = 60  # just below the suspicious peaks at 64-65 years
-INCOME_ALERT_THRESHOLD = 900_000  # fill in with the value from step 2
-
+INCOME_ALERT_THRESHOLD = 900_000  # reference p99.9, computed in eda_reference.ipynb
 # Feature bins (fixed, so drift stays visible in production)
 CAR_AGE_BINS = [0, 5, 10, 15, 20, float("inf")]
 CAR_AGE_LABELS = ["0-5", "5-10", "10-15", "15-20", "20+"]

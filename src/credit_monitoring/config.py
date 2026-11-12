@@ -76,3 +76,16 @@ INFLATION_MIN = 0.0  # per-client income increase between 0% and 40%...
 INFLATION_MAX = 0.4  # ...so +20% on average
 UNEMPLOYMENT_SHARE = 0.15  # share of "Working" clients who lose their job
 UNEMPLOYED_DEFAULT_RATE = 0.294  # reference "Unemployed": 5 of 17 (95% CI ~13%-53%)
+
+# Production scoring
+PREDICTIONS_CONTROL_PATH = (
+    DATA_DIR / "predictions_control.csv"
+)  # row-level: not versioned
+PREDICTIONS_DRIFTED_PATH = (
+    DATA_DIR / "predictions_drifted.csv"
+)  # row-level: not versioned
+PRODUCTION_SUMMARY_PATH = (
+    REPORTS_DIR / "production_summary.json"
+)  # aggregated: versioned
+PRICE_INFLATION = 0.20  # prices rise 20% for everyone (inflation index)
+PRICE_COLUMNS = ["AMT_GOODS_PRICE", "AMT_CREDIT", "AMT_ANNUITY"]

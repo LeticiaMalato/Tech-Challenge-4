@@ -25,6 +25,13 @@ def simulate_inflation(df: pd.DataFrame, rng: np.random.Generator) -> pd.DataFra
     return df
 
 
+def simulate_price_inflation(df: pd.DataFrame) -> pd.DataFrame:
+    """Prices rise by the same index for everyone: goods, loan amount and annuity."""
+    for col in config.PRICE_COLUMNS:
+        df[col] = df[col] * (1 + config.PRICE_INFLATION)
+    return df
+
+
 def simulate_unemployment(
     df: pd.DataFrame, rng: np.random.Generator
 ) -> tuple[pd.DataFrame, pd.Index]:
@@ -48,6 +55,7 @@ def simulate_drift(production: pd.DataFrame) -> tuple[pd.DataFrame, pd.Index]:
     rng = np.random.default_rng(config.RANDOM_STATE)
     drifted = production.copy()
     drifted = simulate_inflation(drifted, rng)
+    drifted = simulate_price_inflation(drifted)
     drifted, newly_unemployed = simulate_unemployment(drifted, rng)
     return drifted, newly_unemployed
 
@@ -63,6 +71,8 @@ if __name__ == "__main__":
         "rows": len(production),
         "income_median_before": float(production["AMT_INCOME_TOTAL"].median()),
         "income_median_after": float(drifted["AMT_INCOME_TOTAL"].median()),
+        "annuity_median_before": float(production["AMT_ANNUITY"].median()),  # NEW
+        "annuity_median_after": float(drifted["AMT_ANNUITY"].median()),  # NEW
         "unemployed_share_before": float(
             (production["NAME_INCOME_TYPE"] == "Unemployed").mean()
         ),
@@ -80,6 +90,7 @@ if __name__ == "__main__":
         ),
         "parameters": {
             "inflation_range": [config.INFLATION_MIN, config.INFLATION_MAX],
+            "price_inflation": config.PRICE_INFLATION,  # NEW
             "unemployment_share": config.UNEMPLOYMENT_SHARE,
             "unemployed_default_rate": config.UNEMPLOYED_DEFAULT_RATE,
         },

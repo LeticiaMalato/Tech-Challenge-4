@@ -1,6 +1,10 @@
 """Train and evaluate the baseline credit scoring model."""
 
+import json
+from datetime import UTC, datetime
+
 import joblib
+import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -80,16 +84,66 @@ if __name__ == "__main__":
 
     # 4. Evaluate on the test set (threshold-free metrics)
     proba = model.predict_proba(X_test)[:, 1]
+    roc_auc = roc_auc_score(y_test, proba)
+    pr_auc = average_precision_score(y_test, proba)
     blocked_rows = blocked.loc[blocked["index"] != BATCH, "index"].nunique()
     print(f"Reference rows: {len(raw)} | blocked by contract: {blocked_rows}")
     print(f"Train: {len(X_train)} | Test: {len(X_test)}")
-    print(f"ROC-AUC: {roc_auc_score(y_test, proba):.4f}")
+    print(f"ROC-AUC: {roc_auc:.4f}")
     print(
-        f"PR-AUC:  {average_precision_score(y_test, proba):.4f} "
-        f"(random baseline = default rate = {y_test.mean():.4f})"
+        f"PR-AUC:  {pr_auc:.4f} (random baseline = default rate = {y_test.mean():.4f})"
     )
 
-    # 5. Save the trained pipeline
+    # 5. Decision threshold: learned on the TRAINING set, then frozen
+    train_proba = model.predict_proba(X_train)[:, 1]
+    y_true = y_test.to_numpy()
+
+    def evaluate_policy(rate: float) -> dict:
+        """Approve clients whose risk is below the train quantile for this approval rate."""
+        threshold = float(np.quantile(train_proba, rate))
+        approved = proba < threshold
+        rejected = ~approved
+        return {
+            "approval_rate_target": rate,
+            "threshold": threshold,
+            "approval_rate_test": float(approved.mean()),
+            "default_rate_approved": float(y_true[approved].mean()),
+            "default_rate_rejected": float(y_true[rejected].mean()),
+            "precision_risk": float(
+                y_true[rejected].mean()
+            ),  # rejected who really default
+            "recall_risk": float(
+                y_true[rejected].sum() / y_true.sum()
+            ),  # defaulters caught
+        }
+
+    comparison = pd.DataFrame(
+        [evaluate_policy(r) for r in config.APPROVAL_RATES_TO_COMPARE]
+    )
+    print("\nApproval policy comparison (test set):")
+    print(comparison.round(4).to_string(index=False))
+
+    policy = evaluate_policy(config.APPROVAL_RATE)
+
+    # 6. Save the model and the baseline metrics (the reference for monitoring)
     config.MODELS_DIR.mkdir(exist_ok=True)
     joblib.dump(model, config.MODEL_PATH)
-    print(f"Model saved to {config.MODEL_PATH}")
+
+    metrics = {
+        "trained_at": datetime.now(UTC).isoformat(),
+        "model": "LogisticRegression",
+        "random_state": config.RANDOM_STATE,
+        "reference_rows": len(raw),
+        "blocked_rows": int(blocked_rows),
+        "train_rows": len(X_train),
+        "test_rows": len(X_test),
+        "default_rate_test": float(y_test.mean()),
+        "roc_auc": float(roc_auc),
+        "pr_auc": float(pr_auc),
+        "decision_policy": policy,
+        "features": FEATURES,
+    }
+    config.REPORTS_DIR.mkdir(exist_ok=True)
+    config.BASELINE_METRICS_PATH.write_text(json.dumps(metrics, indent=2))
+    print(f"\nModel saved to {config.MODEL_PATH}")
+    print(f"Baseline metrics saved to {config.BASELINE_METRICS_PATH}")

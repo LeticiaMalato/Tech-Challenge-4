@@ -128,9 +128,14 @@ def _failure_cases(schema: pa.DataFrameSchema, df: pd.DataFrame) -> pd.DataFrame
     except pa.errors.SchemaErrors as err:
         cases = err.failure_cases.copy()
         # Failures without a row index belong to the whole batch: keep them, never drop them
-        cases["index"] = (
-            cases["index"].astype(object).where(cases["index"].notna(), BATCH)
-        )
+        is_batch = cases["index"].isna()
+        cases["index"] = cases["index"].astype(object).where(~is_batch, BATCH)
+        # Dataframe-level rules report every column of the row: the column is not meaningful
+        is_row_rule = (cases["schema_context"] == "DataFrameSchema") & ~is_batch
+        cases["column"] = cases["column"].astype(object).where(~is_row_rule, "<row>")
+        # Batch-level failures (e.g. missing column) name the column in failure_case
+        missing_name = is_batch & cases["column"].isna()
+        cases.loc[missing_name, "column"] = cases.loc[missing_name, "failure_case"]
         return cases.drop_duplicates(subset=["index", "check"])[CASE_COLUMNS]
 
 

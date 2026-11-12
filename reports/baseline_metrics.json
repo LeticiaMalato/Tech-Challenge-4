@@ -1,0 +1,37 @@
+{
+  "trained_at": "2026-11-12T14:58:53.224004+00:00",
+  "model": "LogisticRegression",
+  "random_state": 42,
+  "reference_rows": 246008,
+  "blocked_rows": 5,
+  "train_rows": 196802,
+  "test_rows": 49201,
+  "default_rate_test": 0.08073006646206378,
+  "roc_auc": 0.7322644068629871,
+  "pr_auc": 0.20543632802235923,
+  "decision_policy": {
+    "approval_rate_target": 0.9,
+    "threshold": 0.1694929649930989,
+    "approval_rate_test": 0.9008556736651694,
+    "default_rate_approved": 0.06294700268483631,
+    "default_rate_rejected": 0.24231242312423124,
+    "precision_risk": 0.24231242312423124,
+    "recall_risk": 0.297583081570997
+  },
+  "features": [
+    "EXT_SOURCE_1",
+    "EXT_SOURCE_2",
+    "EXT_SOURCE_3",
+    "AGE_YEARS",
+    "AMT_INCOME_TOTAL",
+    "AMT_CREDIT",
+    "AMT_ANNUITY",
+    "REGION_RATING_CLIENT_W_CITY",
+    "HOUSING_INFO_MISSING",
+    "EMPLOYMENT_GROUP",
+    "CAR_AGE_GROUP",
+    "NAME_INCOME_TYPE",
+    "NAME_EDUCATION_TYPE",
+    "NAME_CONTRACT_TYPE"
+  ]
+}

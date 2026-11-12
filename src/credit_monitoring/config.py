@@ -37,6 +37,14 @@ EMPLOYMENT_BINS = [0, 1, 3, 5, 10, float("inf")]
 EMPLOYMENT_LABELS = ["0-1", "1-3", "3-5", "5-10", "10+"]
 HOUSING_SUFFIXES = ("_AVG", "_MODE", "_MEDI")
 
+# Decision policy (business assumption, not learned from data)
+APPROVAL_RATE = 0.90  # approve the 90% lowest-risk clients
+APPROVAL_RATES_TO_COMPARE = [0.80, 0.85, 0.90, 0.95, 0.99]
+
+# Evidence (versioned: aggregated numbers only, no personal data)
+REPORTS_DIR = PROJECT_ROOT / "reports"
+BASELINE_METRICS_PATH = REPORTS_DIR / "baseline_metrics.json"
+
 # Model
 MODELS_DIR = PROJECT_ROOT / "models"
 MODEL_PATH = MODELS_DIR / "baseline_logreg.joblib"

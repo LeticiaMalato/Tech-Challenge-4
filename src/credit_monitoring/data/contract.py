@@ -11,7 +11,8 @@ MAX_DAYS_BIRTH = -config.MIN_AGE * config.DAYS_PER_YEAR
 NOT_EMPLOYED_INCOME_TYPES = ["Pensioner", "Unemployed"]
 
 
-#  Dataframe-level rules (more than one column) 
+#  Dataframe-level rules (more than one column)
+
 
 def no_duplicate_records(df: pd.DataFrame) -> pd.Series:
     """Rule 3: a record must not repeat another one under a different ID."""
@@ -36,7 +37,7 @@ def annuity_within_income(df: pd.DataFrame) -> pd.Series:
     return df["AMT_ANNUITY"].isna() | (df["AMT_ANNUITY"] <= df["AMT_INCOME_TOTAL"])
 
 
-#  Blocking rules: a failing record is rejected 
+#  Blocking rules: a failing record is rejected
 
 blocking_schema = pa.DataFrameSchema(
     columns={
@@ -114,7 +115,8 @@ def validate_batch(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.Dat
     return valid, blocked, alerts
 
 
-# Invalid batch 
+# Invalid batch
+
 
 def build_invalid_batch(reference: pd.DataFrame) -> pd.DataFrame:
     """Copies of valid rows, each with exactly one error. Index labels name the case."""
@@ -153,13 +155,29 @@ def build_invalid_batch(reference: pd.DataFrame) -> pd.DataFrame:
     car_age_alert = row(7)
     car_age_alert["OWN_CAR_AGE"] = 64
 
-    batch = pd.concat([
-        valid_1, valid_2, age_under_18, duplicate_id, duplicate_record,
-        zero_income, car_inconsistent, employment_inconsistent, car_age_alert,
-    ])
+    batch = pd.concat(
+        [
+            valid_1,
+            valid_2,
+            age_under_18,
+            duplicate_id,
+            duplicate_record,
+            zero_income,
+            car_inconsistent,
+            employment_inconsistent,
+            car_age_alert,
+        ]
+    )
     batch.index = [
-        "valid_1", "valid_2", "age_under_18", "duplicate_id", "duplicate_record",
-        "zero_income", "car_inconsistent", "employment_inconsistent", "car_age_alert",
+        "valid_1",
+        "valid_2",
+        "age_under_18",
+        "duplicate_id",
+        "duplicate_record",
+        "zero_income",
+        "car_inconsistent",
+        "employment_inconsistent",
+        "car_age_alert",
     ]
     return batch
 

@@ -1,5 +1,5 @@
 {
-  "threshold": 0.1694929649930989,
+  "threshold": 0.16949296499310032,
   "control": {
     "rows": 61503,
     "blocked_rows": 0,
@@ -8,13 +8,13 @@
       "car_age_above_limit": 699,
       "income_above_threshold": 56
     },
-    "mean_risk_score": 0.08062791876583036,
+    "mean_risk_score": 0.08062791876583025,
     "approval_rate": 0.9012080711510008,
     "with_labels": {
       "default_rate": 0.08072776937710356,
       "roc_auc": 0.735609512795661,
       "pr_auc": 0.21610469546126024,
-      "threshold": 0.1694929649930989,
+      "threshold": 0.16949296499310032,
       "approval_rate": 0.9012080711510008,
       "default_rate_approved": 0.0622981579374673,
       "default_rate_rejected": 0.2488479262672811,
@@ -29,13 +29,13 @@
       "car_age_above_limit": 699,
       "income_above_threshold": 162
     },
-    "mean_risk_score": 0.08177010952700829,
+    "mean_risk_score": 0.08177010952700821,
     "approval_rate": 0.8984602377119816,
     "with_labels": {
       "default_rate": 0.09632050469082809,
       "roc_auc": 0.6977535999727089,
       "pr_auc": 0.21320172692742823,
-      "threshold": 0.1694929649930989,
+      "threshold": 0.16949296499310032,
       "approval_rate": 0.8984602377119816,
       "default_rate_approved": 0.07855876072242933,
       "default_rate_rejected": 0.2534827862289832,

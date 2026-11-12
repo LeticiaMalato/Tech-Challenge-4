@@ -89,3 +89,9 @@ PRODUCTION_SUMMARY_PATH = (
 )  # aggregated: versioned
 PRICE_INFLATION = 0.20  # prices rise 20% for everyone (inflation index)
 PRICE_COLUMNS = ["AMT_GOODS_PRICE", "AMT_CREDIT", "AMT_ANNUITY"]
+
+# Drift detection
+DRIFT_SUMMARY_PATH = REPORTS_DIR / "drift_summary.json"
+PSI_MODERATE = 0.10  # credit-scoring convention: below this, the variable is stable
+PSI_SIGNIFICANT = 0.25  # above this, the shift is significant
+PSI_BINS = 10  # numeric variables: deciles of the reference

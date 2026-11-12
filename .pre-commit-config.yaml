@@ -11,6 +11,9 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
-      - id: check-added-large-files   # second barrier against committing datasets
+      - id: check-added-large-files
+        exclude: ^reports/.*\.html$   # Evidently reports are required deliverables
       - id: end-of-file-fixer
+        exclude: ^reports/            # generated files are not edited by hand
       - id: trailing-whitespace
+        exclude: ^reports/

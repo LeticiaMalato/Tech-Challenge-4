@@ -68,3 +68,11 @@ CATEGORICAL_FEATURES = [
     "NAME_EDUCATION_TYPE",
     "NAME_CONTRACT_TYPE",
 ]
+
+# Drift simulation (explicit, reproducible scenario)
+PRODUCTION_DRIFTED_PATH = DATA_DIR / "production_drifted.csv"
+SIMULATION_SUMMARY_PATH = REPORTS_DIR / "simulation_summary.json"
+INFLATION_MIN = 0.0  # per-client income increase between 0% and 40%...
+INFLATION_MAX = 0.4  # ...so +20% on average
+UNEMPLOYMENT_SHARE = 0.15  # share of "Working" clients who lose their job
+UNEMPLOYED_DEFAULT_RATE = 0.294  # reference "Unemployed": 5 of 17 (95% CI ~13%-53%)

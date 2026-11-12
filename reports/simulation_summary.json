@@ -1,0 +1,21 @@
+{
+  "random_state": 42,
+  "rows": 61503,
+  "income_median_before": 146250.0,
+  "income_median_after": 176659.54086708478,
+  "unemployed_share_before": 8.129684730826138e-05,
+  "unemployed_share_after": 0.07745963611531145,
+  "newly_unemployed": 4759,
+  "default_rate_before": 0.08072776937710356,
+  "default_rate_after": 0.09632050469082809,
+  "default_rate_newly_unemployed_before": 0.09749947467955453,
+  "default_rate_newly_unemployed_after": 0.29901239756251313,
+  "parameters": {
+    "inflation_range": [
+      0.0,
+      0.4
+    ],
+    "unemployment_share": 0.15,
+    "unemployed_default_rate": 0.294
+  }
+}

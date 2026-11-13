@@ -128,3 +128,7 @@ REGION_RATINGS = [1, 2, 3]
 # Label-based performance monitoring (labels arrive months after the decision)
 PERFORMANCE_SUMMARY_PATH = REPORTS_DIR / "performance_summary.json"
 PERFORMANCE_REPORT_PATH = REPORTS_DIR / "performance_report.html"
+
+CALIBRATION_GAP_ALERT = (
+    0.01  # 1 p.p.: above this, the model is considered miscalibrated
+)

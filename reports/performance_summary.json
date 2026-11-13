@@ -1,32 +1,102 @@
 {
-  "control": {
-    "rows_scored": 61503.0,
-    "default_rate": 0.08072776937710356,
-    "mean_risk_score": 0.08062791876583021,
-    "calibration_gap": 9.985061127334993e-05,
-    "default_rate_approved": 0.0622981579374673,
-    "roc_auc": 0.735609512795661,
-    "pr_auc": 0.21610469546126024,
-    "pr_auc_lift": 2.6769561097590913
+  "summary": {
+    "reference": {
+      "rows_scored": 49201.0,
+      "default_rate": 0.08073006646206378,
+      "mean_risk_score": 0.08102127615449284,
+      "calibration_gap": -0.00029120969242905914,
+      "default_rate_approved": 0.06294700268483631,
+      "roc_auc": 0.7322644068629871,
+      "pr_auc": 0.20543632802235923,
+      "pr_auc_lift": 2.5447313129476576
+    },
+    "control": {
+      "rows_scored": 61503.0,
+      "default_rate": 0.08072776937710356,
+      "mean_risk_score": 0.08062791876583021,
+      "calibration_gap": 9.985061127334993e-05,
+      "default_rate_approved": 0.0622981579374673,
+      "roc_auc": 0.735609512795661,
+      "pr_auc": 0.21610469546126024,
+      "pr_auc_lift": 2.6769561097590913
+    },
+    "data_drift": {
+      "rows_scored": 61503.0,
+      "default_rate": 0.09593027982374844,
+      "mean_risk_score": 0.08177010952700818,
+      "calibration_gap": 0.014160170296740257,
+      "default_rate_approved": 0.07678526186253574,
+      "roc_auc": 0.710537539585262,
+      "pr_auc": 0.22321513202525914,
+      "pr_auc_lift": 2.326847502533816
+    },
+    "concept_drift": {
+      "rows_scored": 61503.0,
+      "default_rate": 0.09693836073037088,
+      "mean_risk_score": 0.08062791876583021,
+      "calibration_gap": 0.016310441964540665,
+      "default_rate_approved": 0.07922131813015318,
+      "roc_auc": 0.695311769134033,
+      "pr_auc": 0.21649158826816736,
+      "pr_auc_lift": 2.233291203162881
+    }
   },
-  "data_drift": {
-    "rows_scored": 61503.0,
-    "default_rate": 0.09593027982374844,
-    "mean_risk_score": 0.08177010952700818,
-    "calibration_gap": 0.014160170296740257,
-    "default_rate_approved": 0.07678526186253574,
-    "roc_auc": 0.710537539585262,
-    "pr_auc": 0.22321513202525914,
-    "pr_auc_lift": 2.326847502533816
-  },
-  "concept_drift": {
-    "rows_scored": 61503.0,
-    "default_rate": 0.09693836073037088,
-    "mean_risk_score": 0.08062791876583021,
-    "calibration_gap": 0.016310441964540665,
-    "default_rate_approved": 0.07922131813015318,
-    "roc_auc": 0.695311769134033,
-    "pr_auc": 0.21649158826816736,
-    "pr_auc_lift": 2.233291203162881
+  "segments": {
+    "reference": {
+      "newly_unemployed": {
+        "clients": 3.0,
+        "observed_default": 1.0,
+        "predicted_risk": 0.13940864201720402,
+        "calibration_gap": 0.860591357982796
+      },
+      "high_payment_burden": {
+        "clients": 9793.0,
+        "observed_default": 0.09026855917492087,
+        "predicted_risk": 0.08293171296012253,
+        "calibration_gap": 0.00733684621479834
+      }
+    },
+    "control": {
+      "newly_unemployed": {
+        "clients": 5.0,
+        "observed_default": 0.6,
+        "predicted_risk": 0.10522588588576468,
+        "calibration_gap": 0.49477411411423533
+      },
+      "high_payment_burden": {
+        "clients": 12306.0,
+        "observed_default": 0.08101738989111003,
+        "predicted_risk": 0.08162454930086056,
+        "calibration_gap": -0.0006071594097505351
+      }
+    },
+    "data_drift": {
+      "newly_unemployed": {
+        "clients": 4764.0,
+        "observed_default": 0.29429051217464314,
+        "predicted_risk": 0.09472281801819313,
+        "calibration_gap": 0.19956769415645
+      },
+      "high_payment_burden": {
+        "clients": 12888.0,
+        "observed_default": 0.09644630664183737,
+        "predicted_risk": 0.0838091195077609,
+        "calibration_gap": 0.012637187134076466
+      }
+    },
+    "concept_drift": {
+      "newly_unemployed": {
+        "clients": 5.0,
+        "observed_default": 0.6,
+        "predicted_risk": 0.10522588588576468,
+        "calibration_gap": 0.49477411411423533
+      },
+      "high_payment_burden": {
+        "clients": 12306.0,
+        "observed_default": 0.16203477978222006,
+        "predicted_risk": 0.08162454930086056,
+        "calibration_gap": 0.0804102304813595
+      }
+    }
   }
 }

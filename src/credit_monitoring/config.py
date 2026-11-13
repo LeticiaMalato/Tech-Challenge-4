@@ -124,3 +124,7 @@ KNOWN_CATEGORIES = {
     "NAME_CONTRACT_TYPE": ["Cash loans", "Revolving loans"],
 }
 REGION_RATINGS = [1, 2, 3]
+
+# Label-based performance monitoring (labels arrive months after the decision)
+PERFORMANCE_SUMMARY_PATH = REPORTS_DIR / "performance_summary.json"
+PERFORMANCE_REPORT_PATH = REPORTS_DIR / "performance_report.html"

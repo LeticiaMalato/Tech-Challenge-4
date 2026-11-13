@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from credit_monitoring import config
 from credit_monitoring.data.features import build_features
@@ -49,3 +50,9 @@ def test_input_is_not_modified():
     original = raw.copy()
     build_features(raw)
     pd.testing.assert_frame_equal(raw, original)
+
+
+def test_missing_housing_columns_raise():
+    raw = raw_rows().drop(columns=["APARTMENTS_AVG", "APARTMENTS_MODE"])
+    with pytest.raises(ValueError, match="housing"):
+        build_features(raw)

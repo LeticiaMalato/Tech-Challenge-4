@@ -14,14 +14,18 @@ import pandas as pd
 from evidently import DataDefinition, Dataset, Report
 from evidently.presets import DataDriftPreset
 from scipy.stats import ks_2samp
+from sklearn.model_selection import train_test_split
 
 from credit_monitoring import config
 from credit_monitoring.data.contract import validate_batch
 from credit_monitoring.data.features import build_features
 from credit_monitoring.modeling.train import prepare_features
 
-NUMERIC = config.NUMERIC_FEATURES + ["RISK_SCORE"]
-CATEGORICAL = config.CATEGORICAL_FEATURES
+DISCRETE = ["REGION_RATING_CLIENT_W_CITY", "HOUSING_INFO_MISSING"]
+NUMERIC = [col for col in config.NUMERIC_FEATURES if col not in DISCRETE] + [
+    "RISK_SCORE"
+]
+CATEGORICAL = config.CATEGORICAL_FEATURES + DISCRETE
 EPS = 1e-6  # avoids log(0) when a bin is empty
 
 
@@ -32,8 +36,11 @@ def _psi(ref_pct: np.ndarray, cur_pct: np.ndarray) -> float:
 
 
 def psi_numeric(reference: pd.Series, current: pd.Series) -> float:
-    """PSI with bins defined by the reference deciles (fixed, so drift stays visible)."""
-    ref, cur = reference.dropna().to_numpy(), current.dropna().to_numpy()
+    """PSI with reference-decile bins plus one bin for missing values."""
+    ref_all = reference.to_numpy(dtype=float)
+    cur_all = current.to_numpy(dtype=float)
+    ref, cur = ref_all[~np.isnan(ref_all)], cur_all[~np.isnan(cur_all)]
+
     quantiles = np.quantile(ref, np.linspace(0, 1, config.PSI_BINS + 1))
     inner_edges = np.unique(quantiles[1:-1])
     n_bins = len(inner_edges) + 1
@@ -43,7 +50,11 @@ def psi_numeric(reference: pd.Series, current: pd.Series) -> float:
     cur_counts = np.bincount(
         np.searchsorted(inner_edges, cur, side="right"), minlength=n_bins
     )
-    return _psi(ref_counts / len(ref), cur_counts / len(cur))
+
+    # Missing values get their own bin, so a change in the missing rate is visible
+    ref_counts = np.append(ref_counts, np.isnan(ref_all).sum())
+    cur_counts = np.append(cur_counts, np.isnan(cur_all).sum())
+    return _psi(ref_counts / len(ref_all), cur_counts / len(cur_all))
 
 
 def psi_categorical(reference: pd.Series, current: pd.Series) -> float:
@@ -107,9 +118,16 @@ def evidently_report(reference: pd.DataFrame, current: pd.DataFrame, path) -> No
 
 
 def build_reference(model) -> pd.DataFrame:
-    """Reference data in the same stage as the scored production: features + risk score."""
+    """Reference = the baseline TEST set (out-of-sample scores), same split as train.py."""
     valid, _, _ = validate_batch(pd.read_csv(config.REFERENCE_RAW_PATH))
-    reference = build_features(valid)
+    data = build_features(valid)
+    _, reference = train_test_split(
+        data,
+        test_size=config.TEST_SIZE,
+        stratify=data[config.TARGET_COLUMN],
+        random_state=config.RANDOM_STATE,
+    )
+    reference = reference.copy()
     reference["RISK_SCORE"] = model.predict_proba(prepare_features(reference))[:, 1]
     reference[CATEGORICAL] = reference[CATEGORICAL].astype(str)
     return reference

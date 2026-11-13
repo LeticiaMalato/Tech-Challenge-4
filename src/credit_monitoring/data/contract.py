@@ -31,8 +31,12 @@ def is_batch_rejected(blocked: pd.DataFrame) -> bool:
 
 
 def no_duplicate_records(df: pd.DataFrame) -> pd.Series:
-    """Rule 3: a record must not repeat another one under a different ID."""
-    return ~df.drop(columns=[config.ID_COLUMN]).duplicated(keep="first")
+    """Rule 3: the same credit application must not appear under a different ID.
+
+    The target is ignored: it does not exist on the decision day.
+    """
+    ignored = [config.ID_COLUMN, config.TARGET_COLUMN]
+    return ~df.drop(columns=ignored, errors="ignore").duplicated(keep="first")
 
 
 def car_consistency(df: pd.DataFrame) -> pd.Series:
@@ -81,6 +85,11 @@ blocking_schema = pa.DataFrameSchema(
         "OWN_CAR_AGE": pa.Column(float, nullable=True, checks=pa.Check.ge(0)),
         "DAYS_EMPLOYED": pa.Column(int, nullable=False),
         "NAME_INCOME_TYPE": pa.Column(nullable=False),
+        "NAME_EDUCATION_TYPE": pa.Column(nullable=False),
+        "NAME_CONTRACT_TYPE": pa.Column(nullable=False),
+        "REGION_RATING_CLIENT_W_CITY": pa.Column(
+            int, nullable=False, checks=pa.Check.isin(config.REGION_RATINGS)
+        ),
         # Target is optional (production may arrive without labels)
         config.TARGET_COLUMN: pa.Column(required=False, checks=pa.Check.isin([0, 1])),
     },
@@ -110,6 +119,16 @@ alert_schema = pa.DataFrameSchema(
             ),
         ),
         "AMT_ANNUITY": pa.Column(nullable=True),
+        # Unknown categories: the model ignores them silently, so the team is alerted
+        **{
+            col: pa.Column(
+                nullable=True,
+                checks=pa.Check(
+                    lambda s, allowed=allowed: s.isin(allowed), name="unknown_category"
+                ),
+            )
+            for col, allowed in config.KNOWN_CATEGORIES.items()
+        },
     },
     checks=[pa.Check(annuity_within_income, name="annuity_above_income")],
     strict=False,

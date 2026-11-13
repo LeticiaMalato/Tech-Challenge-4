@@ -1,25 +1,49 @@
 {
   "control": [
     {
-      "column": "EXT_SOURCE_1",
-      "type": "numeric",
-      "psi": 0.0007294297367799584,
-      "psi_level": "stable",
-      "ks_statistic": 0.009620962457399518,
-      "ks_pvalue": 0.037837613953182414
-    },
-    {
       "column": "EXT_SOURCE_3",
       "type": "numeric",
-      "psi": 0.0003896291298075805,
+      "psi": 0.000593097989474018,
       "psi_level": "stable",
-      "ks_statistic": 0.0042541116961081205,
-      "ks_pvalue": 0.4714584015846661
+      "ks_statistic": 0.008889896387911655,
+      "ks_pvalue": 0.06228096920712156
     },
     {
       "column": "NAME_INCOME_TYPE",
       "type": "categorical",
-      "psi": 0.0003031254421862305,
+      "psi": 0.0005237595221846854,
+      "psi_level": "stable",
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
+    },
+    {
+      "column": "AGE_YEARS",
+      "type": "numeric",
+      "psi": 0.0004631264464608685,
+      "psi_level": "stable",
+      "ks_statistic": 0.006027927999924465,
+      "ks_pvalue": 0.2725762568728798
+    },
+    {
+      "column": "EXT_SOURCE_2",
+      "type": "numeric",
+      "psi": 0.00045105229735207077,
+      "psi_level": "stable",
+      "ks_statistic": 0.006527121032021577,
+      "ks_pvalue": 0.19476264219321981
+    },
+    {
+      "column": "EXT_SOURCE_1",
+      "type": "numeric",
+      "psi": 0.0004139586288200423,
+      "psi_level": "stable",
+      "ks_statistic": 0.00828768669380553,
+      "ks_pvalue": 0.3859195909819062
+    },
+    {
+      "column": "EMPLOYMENT_GROUP",
+      "type": "categorical",
+      "psi": 0.0003003105742747121,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
@@ -27,71 +51,55 @@
     {
       "column": "AMT_ANNUITY",
       "type": "numeric",
-      "psi": 0.00027820828849487263,
+      "psi": 0.00029386938233408967,
       "psi_level": "stable",
-      "ks_statistic": 0.0033231180605818866,
-      "ks_pvalue": 0.6476405008731475
-    },
-    {
-      "column": "RISK_SCORE",
-      "type": "numeric",
-      "psi": 0.0002278378769917921,
-      "psi_level": "stable",
-      "ks_statistic": 0.00482707131887522,
-      "ks_pvalue": 0.20109729939527732
+      "ks_statistic": 0.003324009481340706,
+      "ks_pvalue": 0.9222611943131092
     },
     {
       "column": "AMT_INCOME_TOTAL",
       "type": "numeric",
-      "psi": 0.00022078229138946777,
+      "psi": 0.00028057594797388383,
       "psi_level": "stable",
-      "ks_statistic": 0.0037744595166321337,
-      "ks_pvalue": 0.48375424290596725
+      "ks_statistic": 0.0031235345560029493,
+      "ks_pvalue": 0.9516997677097744
     },
     {
-      "column": "AGE_YEARS",
+      "column": "RISK_SCORE",
       "type": "numeric",
-      "psi": 0.00019662144237173537,
+      "psi": 0.00026003474694231103,
       "psi_level": "stable",
-      "ks_statistic": 0.004350282029590563,
-      "ks_pvalue": 0.30858308985003524
+      "ks_statistic": 0.006947622853862856,
+      "ks_pvalue": 0.1421821746571149
     },
     {
       "column": "NAME_EDUCATION_TYPE",
       "type": "categorical",
-      "psi": 0.00013469970245160692,
+      "psi": 0.00023728967299513617,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
-    },
-    {
-      "column": "EXT_SOURCE_2",
-      "type": "numeric",
-      "psi": 0.00012438252823367268,
-      "psi_level": "stable",
-      "ks_statistic": 0.0032059157762789336,
-      "ks_pvalue": 0.6926536405277902
     },
     {
       "column": "AMT_CREDIT",
       "type": "numeric",
-      "psi": 9.060113975870963e-05,
+      "psi": 0.00020740186321627116,
       "psi_level": "stable",
-      "ks_statistic": 0.003452793427654588,
-      "ks_pvalue": 0.5992532624484965
+      "ks_statistic": 0.005841908400894824,
+      "ks_pvalue": 0.30724140905787145
     },
     {
-      "column": "EMPLOYMENT_GROUP",
+      "column": "CAR_AGE_GROUP",
       "type": "categorical",
-      "psi": 8.025467738074693e-05,
+      "psi": 9.429443630893054e-05,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
     },
     {
-      "column": "CAR_AGE_GROUP",
+      "column": "REGION_RATING_CLIENT_W_CITY",
       "type": "categorical",
-      "psi": 5.3440476717140084e-05,
+      "psi": 1.1054547773433335e-05,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
@@ -99,33 +107,25 @@
     {
       "column": "NAME_CONTRACT_TYPE",
       "type": "categorical",
-      "psi": 2.994288447269076e-06,
+      "psi": 5.3311632475941505e-06,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
     },
     {
-      "column": "REGION_RATING_CLIENT_W_CITY",
-      "type": "numeric",
-      "psi": 2.8935274131340723e-06,
-      "psi_level": "stable",
-      "ks_statistic": 0.0005069560002993745,
-      "ks_pvalue": 1.0
-    },
-    {
       "column": "HOUSING_INFO_MISSING",
-      "type": "numeric",
-      "psi": 8.723783345907993e-07,
+      "type": "categorical",
+      "psi": 1.2071571023305332e-07,
       "psi_level": "stable",
-      "ks_statistic": 0.0004663798506439054,
-      "ks_pvalue": 1.0
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
     }
   ],
   "data_drift": [
     {
       "column": "NAME_INCOME_TYPE",
       "type": "categorical",
-      "psi": 0.5564567946022649,
+      "psi": 0.5666319295833229,
       "psi_level": "significant",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
@@ -133,87 +133,95 @@
     {
       "column": "AMT_INCOME_TOTAL",
       "type": "numeric",
-      "psi": 0.20264751295729064,
+      "psi": 0.17140161558424505,
       "psi_level": "moderate",
-      "ks_statistic": 0.20798730979144897,
+      "ks_statistic": 0.2051216281486513,
       "ks_pvalue": 0.0
     },
     {
       "column": "AMT_CREDIT",
       "type": "numeric",
-      "psi": 0.15385784460687138,
+      "psi": 0.14674728738467938,
       "psi_level": "moderate",
-      "ks_statistic": 0.12002170314618638,
+      "ks_statistic": 0.11737922818799923,
       "ks_pvalue": 0.0
     },
     {
       "column": "AMT_ANNUITY",
       "type": "numeric",
-      "psi": 0.12283433715377773,
+      "psi": 0.11999656480940403,
       "psi_level": "moderate",
-      "ks_statistic": 0.15253224524204984,
+      "ks_statistic": 0.15143386766739586,
       "ks_pvalue": 0.0
     },
     {
       "column": "EMPLOYMENT_GROUP",
       "type": "categorical",
-      "psi": 0.038227183286198,
+      "psi": 0.039204737425896974,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
-    },
-    {
-      "column": "EXT_SOURCE_1",
-      "type": "numeric",
-      "psi": 0.0007294297367799584,
-      "psi_level": "stable",
-      "ks_statistic": 0.009620962457399518,
-      "ks_pvalue": 0.037837613953182414
-    },
-    {
-      "column": "RISK_SCORE",
-      "type": "numeric",
-      "psi": 0.0006688637177532422,
-      "psi_level": "stable",
-      "ks_statistic": 0.009473101723736055,
-      "ks_pvalue": 0.00029045969080010475
     },
     {
       "column": "EXT_SOURCE_3",
       "type": "numeric",
-      "psi": 0.0003896291298075805,
+      "psi": 0.000593097989474018,
       "psi_level": "stable",
-      "ks_statistic": 0.0042541116961081205,
-      "ks_pvalue": 0.4714584015846661
+      "ks_statistic": 0.008889896387911655,
+      "ks_pvalue": 0.06228096920712156
     },
     {
       "column": "AGE_YEARS",
       "type": "numeric",
-      "psi": 0.00019662144237173537,
+      "psi": 0.0004631264464608685,
       "psi_level": "stable",
-      "ks_statistic": 0.004350282029590563,
-      "ks_pvalue": 0.30858308985003524
+      "ks_statistic": 0.006027927999924465,
+      "ks_pvalue": 0.2725762568728798
+    },
+    {
+      "column": "EXT_SOURCE_2",
+      "type": "numeric",
+      "psi": 0.00045105229735207077,
+      "psi_level": "stable",
+      "ks_statistic": 0.006527121032021577,
+      "ks_pvalue": 0.19476264219321981
+    },
+    {
+      "column": "EXT_SOURCE_1",
+      "type": "numeric",
+      "psi": 0.0004139586288200423,
+      "psi_level": "stable",
+      "ks_statistic": 0.00828768669380553,
+      "ks_pvalue": 0.3859195909819062
+    },
+    {
+      "column": "RISK_SCORE",
+      "type": "numeric",
+      "psi": 0.00039422874778530746,
+      "psi_level": "stable",
+      "ks_statistic": 0.007655421121183614,
+      "ks_pvalue": 0.08079161760575682
     },
     {
       "column": "NAME_EDUCATION_TYPE",
       "type": "categorical",
-      "psi": 0.00013469970245160692,
+      "psi": 0.00023728967299513617,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
     },
     {
-      "column": "EXT_SOURCE_2",
-      "type": "numeric",
-      "psi": 0.00012438252823367268,
-      "psi_level": "stable",
-      "ks_statistic": 0.0032059157762789336,
-      "ks_pvalue": 0.6926536405277902
-    },
-    {
       "column": "CAR_AGE_GROUP",
       "type": "categorical",
-      "psi": 5.3440476717140084e-05,
+      "psi": 9.429443630893054e-05,
+      "psi_level": "stable",
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
+    },
+    {
+      "column": "REGION_RATING_CLIENT_W_CITY",
+      "type": "categorical",
+      "psi": 1.1054547773433335e-05,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
@@ -221,49 +229,65 @@
     {
       "column": "NAME_CONTRACT_TYPE",
       "type": "categorical",
-      "psi": 2.994288447269076e-06,
+      "psi": 5.3311632475941505e-06,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
     },
     {
-      "column": "REGION_RATING_CLIENT_W_CITY",
-      "type": "numeric",
-      "psi": 2.8935274131340723e-06,
-      "psi_level": "stable",
-      "ks_statistic": 0.0005069560002993745,
-      "ks_pvalue": 1.0
-    },
-    {
       "column": "HOUSING_INFO_MISSING",
-      "type": "numeric",
-      "psi": 8.723783345907993e-07,
+      "type": "categorical",
+      "psi": 1.2071571023305332e-07,
       "psi_level": "stable",
-      "ks_statistic": 0.0004663798506439054,
-      "ks_pvalue": 1.0
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
     }
   ],
   "concept_drift": [
     {
-      "column": "EXT_SOURCE_1",
-      "type": "numeric",
-      "psi": 0.0007294297367799584,
-      "psi_level": "stable",
-      "ks_statistic": 0.009620962457399518,
-      "ks_pvalue": 0.037837613953182414
-    },
-    {
       "column": "EXT_SOURCE_3",
       "type": "numeric",
-      "psi": 0.0003896291298075805,
+      "psi": 0.000593097989474018,
       "psi_level": "stable",
-      "ks_statistic": 0.0042541116961081205,
-      "ks_pvalue": 0.4714584015846661
+      "ks_statistic": 0.008889896387911655,
+      "ks_pvalue": 0.06228096920712156
     },
     {
       "column": "NAME_INCOME_TYPE",
       "type": "categorical",
-      "psi": 0.0003031254421862305,
+      "psi": 0.0005237595221846854,
+      "psi_level": "stable",
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
+    },
+    {
+      "column": "AGE_YEARS",
+      "type": "numeric",
+      "psi": 0.0004631264464608685,
+      "psi_level": "stable",
+      "ks_statistic": 0.006027927999924465,
+      "ks_pvalue": 0.2725762568728798
+    },
+    {
+      "column": "EXT_SOURCE_2",
+      "type": "numeric",
+      "psi": 0.00045105229735207077,
+      "psi_level": "stable",
+      "ks_statistic": 0.006527121032021577,
+      "ks_pvalue": 0.19476264219321981
+    },
+    {
+      "column": "EXT_SOURCE_1",
+      "type": "numeric",
+      "psi": 0.0004139586288200423,
+      "psi_level": "stable",
+      "ks_statistic": 0.00828768669380553,
+      "ks_pvalue": 0.3859195909819062
+    },
+    {
+      "column": "EMPLOYMENT_GROUP",
+      "type": "categorical",
+      "psi": 0.0003003105742747121,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
@@ -271,71 +295,55 @@
     {
       "column": "AMT_ANNUITY",
       "type": "numeric",
-      "psi": 0.00027820828849487263,
+      "psi": 0.00029386938233408967,
       "psi_level": "stable",
-      "ks_statistic": 0.0033231180605818866,
-      "ks_pvalue": 0.6476405008731475
-    },
-    {
-      "column": "RISK_SCORE",
-      "type": "numeric",
-      "psi": 0.0002278378769917921,
-      "psi_level": "stable",
-      "ks_statistic": 0.00482707131887522,
-      "ks_pvalue": 0.20109729939527732
+      "ks_statistic": 0.003324009481340706,
+      "ks_pvalue": 0.9222611943131092
     },
     {
       "column": "AMT_INCOME_TOTAL",
       "type": "numeric",
-      "psi": 0.00022078229138946777,
+      "psi": 0.00028057594797388383,
       "psi_level": "stable",
-      "ks_statistic": 0.0037744595166321337,
-      "ks_pvalue": 0.48375424290596725
+      "ks_statistic": 0.0031235345560029493,
+      "ks_pvalue": 0.9516997677097744
     },
     {
-      "column": "AGE_YEARS",
+      "column": "RISK_SCORE",
       "type": "numeric",
-      "psi": 0.00019662144237173537,
+      "psi": 0.00026003474694231103,
       "psi_level": "stable",
-      "ks_statistic": 0.004350282029590563,
-      "ks_pvalue": 0.30858308985003524
+      "ks_statistic": 0.006947622853862856,
+      "ks_pvalue": 0.1421821746571149
     },
     {
       "column": "NAME_EDUCATION_TYPE",
       "type": "categorical",
-      "psi": 0.00013469970245160692,
+      "psi": 0.00023728967299513617,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
-    },
-    {
-      "column": "EXT_SOURCE_2",
-      "type": "numeric",
-      "psi": 0.00012438252823367268,
-      "psi_level": "stable",
-      "ks_statistic": 0.0032059157762789336,
-      "ks_pvalue": 0.6926536405277902
     },
     {
       "column": "AMT_CREDIT",
       "type": "numeric",
-      "psi": 9.060113975870963e-05,
+      "psi": 0.00020740186321627116,
       "psi_level": "stable",
-      "ks_statistic": 0.003452793427654588,
-      "ks_pvalue": 0.5992532624484965
+      "ks_statistic": 0.005841908400894824,
+      "ks_pvalue": 0.30724140905787145
     },
     {
-      "column": "EMPLOYMENT_GROUP",
+      "column": "CAR_AGE_GROUP",
       "type": "categorical",
-      "psi": 8.025467738074693e-05,
+      "psi": 9.429443630893054e-05,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
     },
     {
-      "column": "CAR_AGE_GROUP",
+      "column": "REGION_RATING_CLIENT_W_CITY",
       "type": "categorical",
-      "psi": 5.3440476717140084e-05,
+      "psi": 1.1054547773433335e-05,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
@@ -343,26 +351,18 @@
     {
       "column": "NAME_CONTRACT_TYPE",
       "type": "categorical",
-      "psi": 2.994288447269076e-06,
+      "psi": 5.3311632475941505e-06,
       "psi_level": "stable",
       "ks_statistic": NaN,
       "ks_pvalue": NaN
     },
     {
-      "column": "REGION_RATING_CLIENT_W_CITY",
-      "type": "numeric",
-      "psi": 2.8935274131340723e-06,
-      "psi_level": "stable",
-      "ks_statistic": 0.0005069560002993745,
-      "ks_pvalue": 1.0
-    },
-    {
       "column": "HOUSING_INFO_MISSING",
-      "type": "numeric",
-      "psi": 8.723783345907993e-07,
+      "type": "categorical",
+      "psi": 1.2071571023305332e-07,
       "psi_level": "stable",
-      "ks_statistic": 0.0004663798506439054,
-      "ks_pvalue": 1.0
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
     }
   ]
 }

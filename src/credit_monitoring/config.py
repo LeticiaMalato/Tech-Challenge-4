@@ -101,3 +101,26 @@ PRODUCTION_CONCEPT_PATH = DATA_DIR / "production_concept.csv"
 PREDICTIONS_CONCEPT_PATH = DATA_DIR / "predictions_concept.csv"
 COMMITMENT_QUANTILE = 0.80  # top 20% annuity/income ratio in the REFERENCE
 CONCEPT_DEFAULT_MULTIPLIER = 2.0  # default rate in that group doubles
+
+# Known categories (observed in the reference EDA); unknown values trigger an alert
+KNOWN_CATEGORIES = {
+    "NAME_INCOME_TYPE": [
+        "Working",
+        "Commercial associate",
+        "Pensioner",
+        "State servant",
+        "Unemployed",
+        "Student",
+        "Businessman",
+        "Maternity leave",
+    ],
+    "NAME_EDUCATION_TYPE": [
+        "Secondary / secondary special",
+        "Higher education",
+        "Incomplete higher",
+        "Lower secondary",
+        "Academic degree",
+    ],
+    "NAME_CONTRACT_TYPE": ["Cash loans", "Revolving loans"],
+}
+REGION_RATINGS = [1, 2, 3]

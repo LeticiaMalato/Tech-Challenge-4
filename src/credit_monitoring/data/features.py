@@ -12,6 +12,11 @@ from credit_monitoring import config
 def add_housing_indicator(df: pd.DataFrame) -> pd.DataFrame:
     """Replace the 47 housing columns with a single 'all missing' indicator."""
     housing_cols = [col for col in df.columns if col.endswith(config.HOUSING_SUFFIXES)]
+    if not housing_cols:
+        # An empty list would make every client "missing": fail loudly instead
+        raise ValueError(
+            "No housing columns found: HOUSING_INFO_MISSING cannot be computed"
+        )
     df["HOUSING_INFO_MISSING"] = df[housing_cols].isnull().all(axis=1).astype(int)
     return df.drop(columns=housing_cols)
 

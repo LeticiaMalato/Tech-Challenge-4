@@ -121,7 +121,8 @@ if __name__ == "__main__":
 
     batches = {
         "control": config.PREDICTIONS_CONTROL_PATH,
-        "drifted": config.PREDICTIONS_DRIFTED_PATH,
+        "data_drift": config.PREDICTIONS_DRIFTED_PATH,
+        "concept_drift": config.PREDICTIONS_CONCEPT_PATH,
     }
     results = {}
     for name, path in batches.items():

@@ -21,7 +21,7 @@
       "recall_risk": 0.30453172205438067
     }
   },
-  "drifted": {
+  "data_drift": {
     "rows": 61503,
     "blocked_rows": 0,
     "alerts_by_rule": {
@@ -32,14 +32,35 @@
     "mean_risk_score": 0.08177010952700821,
     "approval_rate": 0.8984602377119816,
     "with_labels": {
-      "default_rate": 0.09632050469082809,
-      "roc_auc": 0.6977535999727089,
-      "pr_auc": 0.21320172692742823,
+      "default_rate": 0.09593027982374844,
+      "roc_auc": 0.710537539585262,
+      "pr_auc": 0.22321513202525914,
       "threshold": 0.16949296499310032,
       "approval_rate": 0.8984602377119816,
-      "default_rate_approved": 0.07855876072242933,
-      "default_rate_rejected": 0.2534827862289832,
-      "recall_risk": 0.26721809588116135
+      "default_rate_approved": 0.07678526186253574,
+      "default_rate_rejected": 0.2653322658126501,
+      "recall_risk": 0.28084745762711866
+    }
+  },
+  "concept_drift": {
+    "rows": 61503,
+    "blocked_rows": 0,
+    "alerts_by_rule": {
+      "annuity_above_income": 8,
+      "car_age_above_limit": 699,
+      "income_above_threshold": 56
+    },
+    "mean_risk_score": 0.08062791876583025,
+    "approval_rate": 0.9012080711510008,
+    "with_labels": {
+      "default_rate": 0.09693836073037088,
+      "roc_auc": 0.695311769134033,
+      "pr_auc": 0.21649158826816736,
+      "threshold": 0.16949296499310032,
+      "approval_rate": 0.9012080711510008,
+      "default_rate_approved": 0.07922131813015318,
+      "default_rate_rejected": 0.25855826201448323,
+      "recall_risk": 0.2635021804763502
     }
   }
 }

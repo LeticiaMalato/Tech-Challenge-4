@@ -121,7 +121,7 @@
       "ks_pvalue": 1.0
     }
   ],
-  "drifted": [
+  "data_drift": [
     {
       "column": "NAME_INCOME_TYPE",
       "type": "categorical",
@@ -209,6 +209,128 @@
       "psi_level": "stable",
       "ks_statistic": 0.0032059157762789336,
       "ks_pvalue": 0.6926536405277902
+    },
+    {
+      "column": "CAR_AGE_GROUP",
+      "type": "categorical",
+      "psi": 5.3440476717140084e-05,
+      "psi_level": "stable",
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
+    },
+    {
+      "column": "NAME_CONTRACT_TYPE",
+      "type": "categorical",
+      "psi": 2.994288447269076e-06,
+      "psi_level": "stable",
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
+    },
+    {
+      "column": "REGION_RATING_CLIENT_W_CITY",
+      "type": "numeric",
+      "psi": 2.8935274131340723e-06,
+      "psi_level": "stable",
+      "ks_statistic": 0.0005069560002993745,
+      "ks_pvalue": 1.0
+    },
+    {
+      "column": "HOUSING_INFO_MISSING",
+      "type": "numeric",
+      "psi": 8.723783345907993e-07,
+      "psi_level": "stable",
+      "ks_statistic": 0.0004663798506439054,
+      "ks_pvalue": 1.0
+    }
+  ],
+  "concept_drift": [
+    {
+      "column": "EXT_SOURCE_1",
+      "type": "numeric",
+      "psi": 0.0007294297367799584,
+      "psi_level": "stable",
+      "ks_statistic": 0.009620962457399518,
+      "ks_pvalue": 0.037837613953182414
+    },
+    {
+      "column": "EXT_SOURCE_3",
+      "type": "numeric",
+      "psi": 0.0003896291298075805,
+      "psi_level": "stable",
+      "ks_statistic": 0.0042541116961081205,
+      "ks_pvalue": 0.4714584015846661
+    },
+    {
+      "column": "NAME_INCOME_TYPE",
+      "type": "categorical",
+      "psi": 0.0003031254421862305,
+      "psi_level": "stable",
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
+    },
+    {
+      "column": "AMT_ANNUITY",
+      "type": "numeric",
+      "psi": 0.00027820828849487263,
+      "psi_level": "stable",
+      "ks_statistic": 0.0033231180605818866,
+      "ks_pvalue": 0.6476405008731475
+    },
+    {
+      "column": "RISK_SCORE",
+      "type": "numeric",
+      "psi": 0.0002278378769917921,
+      "psi_level": "stable",
+      "ks_statistic": 0.00482707131887522,
+      "ks_pvalue": 0.20109729939527732
+    },
+    {
+      "column": "AMT_INCOME_TOTAL",
+      "type": "numeric",
+      "psi": 0.00022078229138946777,
+      "psi_level": "stable",
+      "ks_statistic": 0.0037744595166321337,
+      "ks_pvalue": 0.48375424290596725
+    },
+    {
+      "column": "AGE_YEARS",
+      "type": "numeric",
+      "psi": 0.00019662144237173537,
+      "psi_level": "stable",
+      "ks_statistic": 0.004350282029590563,
+      "ks_pvalue": 0.30858308985003524
+    },
+    {
+      "column": "NAME_EDUCATION_TYPE",
+      "type": "categorical",
+      "psi": 0.00013469970245160692,
+      "psi_level": "stable",
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
+    },
+    {
+      "column": "EXT_SOURCE_2",
+      "type": "numeric",
+      "psi": 0.00012438252823367268,
+      "psi_level": "stable",
+      "ks_statistic": 0.0032059157762789336,
+      "ks_pvalue": 0.6926536405277902
+    },
+    {
+      "column": "AMT_CREDIT",
+      "type": "numeric",
+      "psi": 9.060113975870963e-05,
+      "psi_level": "stable",
+      "ks_statistic": 0.003452793427654588,
+      "ks_pvalue": 0.5992532624484965
+    },
+    {
+      "column": "EMPLOYMENT_GROUP",
+      "type": "categorical",
+      "psi": 8.025467738074693e-05,
+      "psi_level": "stable",
+      "ks_statistic": NaN,
+      "ks_pvalue": NaN
     },
     {
       "column": "CAR_AGE_GROUP",

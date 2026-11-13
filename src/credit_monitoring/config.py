@@ -95,3 +95,9 @@ DRIFT_SUMMARY_PATH = REPORTS_DIR / "drift_summary.json"
 PSI_MODERATE = 0.10  # credit-scoring convention: below this, the variable is stable
 PSI_SIGNIFICANT = 0.25  # above this, the shift is significant
 PSI_BINS = 10  # numeric variables: deciles of the reference
+
+# Concept drift scenario: same features, higher risk for clients with high payment burden
+PRODUCTION_CONCEPT_PATH = DATA_DIR / "production_concept.csv"
+PREDICTIONS_CONCEPT_PATH = DATA_DIR / "predictions_concept.csv"
+COMMITMENT_QUANTILE = 0.80  # top 20% annuity/income ratio in the REFERENCE
+CONCEPT_DEFAULT_MULTIPLIER = 2.0  # default rate in that group doubles

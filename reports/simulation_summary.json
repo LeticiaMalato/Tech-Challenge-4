@@ -1,17 +1,26 @@
 {
   "random_state": 42,
   "rows": 61503,
-  "income_median_before": 146250.0,
-  "income_median_after": 176659.54086708478,
-  "annuity_median_before": 24939.0,
-  "annuity_median_after": 29926.8,
-  "unemployed_share_before": 8.129684730826138e-05,
-  "unemployed_share_after": 0.07745963611531145,
-  "newly_unemployed": 4759,
-  "default_rate_before": 0.08072776937710356,
-  "default_rate_after": 0.09632050469082809,
-  "default_rate_newly_unemployed_before": 0.09749947467955453,
-  "default_rate_newly_unemployed_after": 0.29901239756251313,
+  "data_drift": {
+    "income_median_before": 146250.0,
+    "income_median_after": 176659.54086708478,
+    "annuity_median_before": 24939.0,
+    "annuity_median_after": 29926.8,
+    "newly_unemployed": 4759,
+    "default_rate_newly_unemployed_before": 0.09749947467955453,
+    "default_rate_newly_unemployed_after": 0.29396932128598446,
+    "default_rate_before": 0.08072776937710356,
+    "default_rate_after": 0.09593027982374844
+  },
+  "concept_drift": {
+    "burden_limit": 0.2466887931034483,
+    "group_size": 12306,
+    "group_default_rate_before": 0.08101738989111003,
+    "group_default_rate_after": 0.16203477978222006,
+    "default_rate_before": 0.08072776937710356,
+    "default_rate_after": 0.09693836073037088,
+    "features_changed": false
+  },
   "parameters": {
     "inflation_range": [
       0.0,
@@ -19,6 +28,8 @@
     ],
     "price_inflation": 0.2,
     "unemployment_share": 0.15,
-    "unemployed_default_rate": 0.294
+    "unemployed_default_rate": 0.294,
+    "commitment_quantile": 0.8,
+    "concept_default_multiplier": 2.0
   }
 }

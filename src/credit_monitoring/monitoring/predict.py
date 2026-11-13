@@ -66,7 +66,11 @@ if __name__ == "__main__":
 
     batches = {
         "control": (config.PRODUCTION_RAW_PATH, config.PREDICTIONS_CONTROL_PATH),
-        "drifted": (config.PRODUCTION_DRIFTED_PATH, config.PREDICTIONS_DRIFTED_PATH),
+        "data_drift": (config.PRODUCTION_DRIFTED_PATH, config.PREDICTIONS_DRIFTED_PATH),
+        "concept_drift": (
+            config.PRODUCTION_CONCEPT_PATH,
+            config.PREDICTIONS_CONCEPT_PATH,
+        ),
     }
     summaries = {"threshold": threshold}
     for name, (input_path, output_path) in batches.items():

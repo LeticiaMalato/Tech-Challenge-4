@@ -124,7 +124,8 @@ alert_schema = pa.DataFrameSchema(
             col: pa.Column(
                 nullable=True,
                 checks=pa.Check(
-                    lambda s, allowed=allowed: s.isin(allowed), name="unknown_category"
+                    lambda s, allowed=allowed: s.isin(allowed),
+                    name=f"unknown_category:{col}",
                 ),
             )
             for col, allowed in config.KNOWN_CATEGORIES.items()

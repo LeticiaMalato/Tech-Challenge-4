@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-11-13T13:40:55.055685+00:00",
+  "trained_at": "2026-11-13T14:12:35.491216+00:00",
   "model": "LogisticRegression",
   "random_state": 42,
   "reference_rows": 246008,

@@ -138,3 +138,6 @@ BIAS_AUDIT_PATH = REPORTS_DIR / "bias_audit.json"
 AGE_BANDS = [18, 30, 45, 60, 120]
 AGE_BAND_LABELS = ["18-29", "30-44", "45-59", "60+"]
 MIN_SEGMENT_SIZE = 100  # smaller groups are reported but not interpreted
+
+# Pseudonymization: the secret key comes from an environment variable, never from the code
+PSEUDONYM_KEY_ENV = "CREDIT_MONITORING_PSEUDONYM_KEY"

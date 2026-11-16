@@ -5,6 +5,7 @@ Each test builds its own small DataFrame, so no dataset file is needed.
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from credit_monitoring import config
 from credit_monitoring.data.contract import build_invalid_batch, validate_batch
@@ -25,6 +26,9 @@ def valid_row(**overrides) -> pd.DataFrame:
         "OWN_CAR_AGE": np.nan,  # NaN keeps the column numeric; None would make it text
         "DAYS_EMPLOYED": -1500,
         "NAME_INCOME_TYPE": "Working",
+        "NAME_EDUCATION_TYPE": "Higher education",
+        "NAME_CONTRACT_TYPE": "Cash loans",
+        "REGION_RATING_CLIENT_W_CITY": 2,
     }
     row.update(overrides)
     return pd.DataFrame([row])
@@ -228,3 +232,32 @@ def test_invalid_batch_end_to_end():
         "employment_inconsistent",
     }
     assert set(alerts["index"]) == {"car_age_alert"}
+
+
+def test_invalid_region_rating_is_blocked():
+    valid, blocked, _ = validate_batch(valid_row(REGION_RATING_CLIENT_W_CITY=7))
+    assert valid.empty
+    assert_blocked_only_by(blocked, "isin")
+
+
+@pytest.mark.parametrize(
+    "column, unknown_value",
+    [
+        ("NAME_INCOME_TYPE", "Wroking"),
+        ("NAME_EDUCATION_TYPE", "Hgiher education"),
+        ("NAME_CONTRACT_TYPE", "Csah loans"),
+    ],
+)
+def test_unknown_category_passes_with_alert(column, unknown_value):
+    valid, blocked, alerts = validate_batch(valid_row(**{column: unknown_value}))
+    assert len(valid) == 1
+    assert blocked.empty
+    assert (alerts["check"] == f"unknown_category:{column}").any()
+
+
+def test_duplicate_ignores_target():
+    first = valid_row(SK_ID_CURR=1, TARGET=0)
+    second = valid_row(SK_ID_CURR=2, TARGET=1)  # same application, different label
+    valid, blocked, _ = validate_batch(pd.concat([first, second], ignore_index=True))
+    assert len(valid) == 1
+    assert_blocked_only_by(blocked, "no_duplicate_records")

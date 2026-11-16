@@ -68,3 +68,76 @@ CATEGORICAL_FEATURES = [
     "NAME_EDUCATION_TYPE",
     "NAME_CONTRACT_TYPE",
 ]
+
+# Drift simulation (explicit, reproducible scenario)
+PRODUCTION_DRIFTED_PATH = DATA_DIR / "production_drifted.csv"
+SIMULATION_SUMMARY_PATH = REPORTS_DIR / "simulation_summary.json"
+INFLATION_MIN = 0.0  # per-client income increase between 0% and 40%...
+INFLATION_MAX = 0.4  # ...so +20% on average
+UNEMPLOYMENT_SHARE = 0.15  # share of "Working" clients who lose their job
+UNEMPLOYED_DEFAULT_RATE = 0.294  # reference "Unemployed": 5 of 17 (95% CI ~13%-53%)
+
+# Production scoring
+PREDICTIONS_CONTROL_PATH = (
+    DATA_DIR / "predictions_control.csv"
+)  # row-level: not versioned
+PREDICTIONS_DRIFTED_PATH = (
+    DATA_DIR / "predictions_drifted.csv"
+)  # row-level: not versioned
+PRODUCTION_SUMMARY_PATH = (
+    REPORTS_DIR / "production_summary.json"
+)  # aggregated: versioned
+PRICE_INFLATION = 0.20  # prices rise 20% for everyone (inflation index)
+PRICE_COLUMNS = ["AMT_GOODS_PRICE", "AMT_CREDIT", "AMT_ANNUITY"]
+
+# Drift detection
+DRIFT_SUMMARY_PATH = REPORTS_DIR / "drift_summary.json"
+PSI_MODERATE = 0.10  # credit-scoring convention: below this, the variable is stable
+PSI_SIGNIFICANT = 0.25  # above this, the shift is significant
+PSI_BINS = 10  # numeric variables: deciles of the reference
+
+# Concept drift scenario: same features, higher risk for clients with high payment burden
+PRODUCTION_CONCEPT_PATH = DATA_DIR / "production_concept.csv"
+PREDICTIONS_CONCEPT_PATH = DATA_DIR / "predictions_concept.csv"
+COMMITMENT_QUANTILE = 0.80  # top 20% annuity/income ratio in the REFERENCE
+CONCEPT_DEFAULT_MULTIPLIER = 2.0  # default rate in that group doubles
+
+# Known categories (observed in the reference EDA); unknown values trigger an alert
+KNOWN_CATEGORIES = {
+    "NAME_INCOME_TYPE": [
+        "Working",
+        "Commercial associate",
+        "Pensioner",
+        "State servant",
+        "Unemployed",
+        "Student",
+        "Businessman",
+        "Maternity leave",
+    ],
+    "NAME_EDUCATION_TYPE": [
+        "Secondary / secondary special",
+        "Higher education",
+        "Incomplete higher",
+        "Lower secondary",
+        "Academic degree",
+    ],
+    "NAME_CONTRACT_TYPE": ["Cash loans", "Revolving loans"],
+}
+REGION_RATINGS = [1, 2, 3]
+
+# Label-based performance monitoring (labels arrive months after the decision)
+PERFORMANCE_SUMMARY_PATH = REPORTS_DIR / "performance_summary.json"
+PERFORMANCE_REPORT_PATH = REPORTS_DIR / "performance_report.html"
+
+CALIBRATION_GAP_ALERT = (
+    0.01  # 1 p.p.: above this, the model is considered miscalibrated
+)
+
+# Bias audit (audit only: these attributes are never model features)
+BIAS_AUDIT_PATH = REPORTS_DIR / "bias_audit.json"
+AGE_BANDS = [18, 30, 45, 60, 120]
+AGE_BAND_LABELS = ["18-29", "30-44", "45-59", "60+"]
+MIN_SEGMENT_SIZE = 100  # smaller groups are reported but not interpreted
+
+# Pseudonymization: the secret key comes from an environment variable, never from the code
+PSEUDONYM_KEY_ENV = "CREDIT_MONITORING_PSEUDONYM_KEY"

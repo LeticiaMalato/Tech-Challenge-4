@@ -132,3 +132,9 @@ PERFORMANCE_REPORT_PATH = REPORTS_DIR / "performance_report.html"
 CALIBRATION_GAP_ALERT = (
     0.01  # 1 p.p.: above this, the model is considered miscalibrated
 )
+
+# Bias audit (audit only: these attributes are never model features)
+BIAS_AUDIT_PATH = REPORTS_DIR / "bias_audit.json"
+AGE_BANDS = [18, 30, 45, 60, 120]
+AGE_BAND_LABELS = ["18-29", "30-44", "45-59", "60+"]
+MIN_SEGMENT_SIZE = 100  # smaller groups are reported but not interpreted

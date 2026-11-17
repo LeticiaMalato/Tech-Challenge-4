@@ -1,0 +1,70 @@
+# HELP credit_pipeline_task_status 1 = success, 0 = failure
+# TYPE credit_pipeline_task_status gauge
+credit_pipeline_task_status{task="observability",batch="none"} 1
+# HELP credit_pipeline_task_duration_seconds Task wall time
+# TYPE credit_pipeline_task_duration_seconds gauge
+credit_pipeline_task_duration_seconds{task="observability",batch="none"} 3.8888
+credit_pipeline_task_status{task="split",batch="none"} 1
+credit_pipeline_task_duration_seconds{task="split",batch="none"} 11.2289
+credit_pipeline_task_status{task="contract",batch="reference"} 1
+credit_pipeline_task_duration_seconds{task="contract",batch="reference"} 9.9118
+credit_pipeline_task_status{task="contract_invalid_batch",batch="invalid"} 1
+credit_pipeline_task_duration_seconds{task="contract_invalid_batch",batch="invalid"} 0.1403
+credit_pipeline_task_status{task="train",batch="none"} 1
+credit_pipeline_task_duration_seconds{task="train",batch="none"} 15.2861
+credit_pipeline_task_status{task="simulate",batch="none"} 1
+credit_pipeline_task_duration_seconds{task="simulate",batch="none"} 5.4344
+credit_pipeline_task_status{task="predict",batch="control"} 1
+credit_pipeline_task_duration_seconds{task="predict",batch="control"} 1.9568
+credit_pipeline_task_status{task="predict",batch="data_drift"} 1
+credit_pipeline_task_duration_seconds{task="predict",batch="data_drift"} 1.9241
+credit_pipeline_task_status{task="predict",batch="concept_drift"} 1
+credit_pipeline_task_duration_seconds{task="predict",batch="concept_drift"} 1.9193
+credit_pipeline_task_status{task="drift",batch="control"} 1
+credit_pipeline_task_duration_seconds{task="drift",batch="control"} 2.5571
+credit_pipeline_task_status{task="drift",batch="data_drift"} 1
+credit_pipeline_task_duration_seconds{task="drift",batch="data_drift"} 2.1497
+credit_pipeline_task_status{task="drift",batch="concept_drift"} 1
+credit_pipeline_task_duration_seconds{task="drift",batch="concept_drift"} 2.1761
+credit_pipeline_task_status{task="performance",batch="none"} 1
+credit_pipeline_task_duration_seconds{task="performance",batch="none"} 6.0189
+credit_pipeline_task_status{task="bias_audit",batch="none"} 1
+credit_pipeline_task_duration_seconds{task="bias_audit",batch="none"} 3.3507
+# HELP credit_feature_psi PSI per feature (from the last health snapshot)
+# TYPE credit_feature_psi gauge
+# HELP credit_max_psi Worst PSI in the batch
+# TYPE credit_max_psi gauge
+# HELP credit_calibration_gap Observed default minus mean predicted risk
+# TYPE credit_calibration_gap gauge
+# HELP credit_silent_degradation 1 when inputs look stable but labels show miscalibration
+# TYPE credit_silent_degradation gauge
+# HELP credit_drift_alert 1 when any feature PSI is moderate or significant
+# TYPE credit_drift_alert gauge
+# HELP credit_blocked_rows Rows quarantined by the data contract
+# TYPE credit_blocked_rows gauge
+# HELP credit_rows_processed Batch size before scoring
+# TYPE credit_rows_processed gauge
+credit_max_psi{batch="control"} 0.000593097989474018
+credit_calibration_gap{batch="control"} 9.985061127361361e-05
+credit_silent_degradation{batch="control"} 0
+credit_drift_alert{batch="control"} 0
+credit_blocked_rows{batch="control"} 0
+credit_rows_processed{batch="control"} 61503
+# HELP credit_model_roc_auc Ranking quality on the batch
+# TYPE credit_model_roc_auc gauge
+credit_model_roc_auc{batch="control"} 0.735609512795661
+credit_max_psi{batch="data_drift"} 0.5666319295833229
+credit_calibration_gap{batch="data_drift"} 0.014160170296740604
+credit_silent_degradation{batch="data_drift"} 0
+credit_drift_alert{batch="data_drift"} 1
+credit_blocked_rows{batch="data_drift"} 0
+credit_rows_processed{batch="data_drift"} 61503
+credit_model_roc_auc{batch="data_drift"} 0.710537539585262
+credit_max_psi{batch="concept_drift"} 0.000593097989474018
+credit_calibration_gap{batch="concept_drift"} 0.016310441964540928
+credit_silent_degradation{batch="concept_drift"} 1
+credit_drift_alert{batch="concept_drift"} 0
+credit_blocked_rows{batch="concept_drift"} 0
+credit_rows_processed{batch="concept_drift"} 61503
+credit_model_roc_auc{batch="concept_drift"} 0.695311769134033
+# EOF

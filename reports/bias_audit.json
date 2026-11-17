@@ -6,8 +6,8 @@
       "approval_rate": 0.9134615384615384,
       "default_rate_approved": 0.05419354838709677,
       "approval_rate_good_payers": 0.9279717484008528,
-      "mean_risk_score": 0.07684104500739898,
-      "calibration_gap": -0.007858414734446123,
+      "mean_risk_score": 0.07684104500739847,
+      "calibration_gap": -0.00785841473444561,
       "interpretable": true
     },
     "M": {
@@ -16,8 +16,8 @@
       "approval_rate": 0.8768940510583102,
       "default_rate_approved": 0.08027970147246688,
       "approval_rate_good_payers": 0.8991651876684414,
-      "mean_risk_score": 0.08896719043916389,
-      "calibration_gap": 0.014092770648036157,
+      "mean_risk_score": 0.08896719043916412,
+      "calibration_gap": 0.014092770648035921,
       "interpretable": true
     }
   },
@@ -28,8 +28,8 @@
       "approval_rate": 0.759635599159075,
       "default_rate_approved": 0.07675276752767528,
       "approval_rate_good_payers": 0.7893989588263133,
-      "mean_risk_score": 0.12536328602001665,
-      "calibration_gap": -0.013800567029126673,
+      "mean_risk_score": 0.1253632860200154,
+      "calibration_gap": -0.013800567029125424,
       "interpretable": true
     },
     "30-44": {
@@ -38,8 +38,8 @@
       "approval_rate": 0.8873360676489949,
       "default_rate_approved": 0.07024651905957544,
       "approval_rate_good_payers": 0.907940930621343,
-      "mean_risk_score": 0.08681679814224723,
-      "calibration_gap": 0.004529599143691304,
+      "mean_risk_score": 0.08681679814224712,
+      "calibration_gap": 0.004529599143691415,
       "interpretable": true
     },
     "45-59": {
@@ -48,8 +48,8 @@
       "approval_rate": 0.9499404052443385,
       "default_rate_approved": 0.05570890840652447,
       "approval_rate_good_payers": 0.9593371574251115,
-      "mean_risk_score": 0.06498143345948912,
-      "calibration_gap": -2.3149788452164755e-05,
+      "mean_risk_score": 0.06498143345948927,
+      "calibration_gap": -2.314978845231741e-05,
       "interpretable": true
     },
     "60+": {
@@ -58,8 +58,8 @@
       "approval_rate": 0.9823008849557522,
       "default_rate_approved": 0.04688361831218974,
       "approval_rate_good_payers": 0.9864890580399619,
-      "mean_risk_score": 0.05182000403881442,
-      "calibration_gap": -0.0008898974829177272,
+      "mean_risk_score": 0.051820004038813705,
+      "calibration_gap": -0.0008898974829170125,
       "interpretable": true
     }
   }

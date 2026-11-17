@@ -20,6 +20,7 @@ from credit_monitoring import config
 from credit_monitoring.data.contract import validate_batch
 from credit_monitoring.data.features import build_features
 from credit_monitoring.modeling.train import prepare_features
+from credit_monitoring.observability.logging import pipeline_step
 
 DISCRETE = ["REGION_RATING_CLIENT_W_CITY", "HOUSING_INFO_MISSING"]
 NUMERIC = [col for col in config.NUMERIC_FEATURES if col not in DISCRETE] + [
@@ -144,17 +145,20 @@ if __name__ == "__main__":
     }
     results = {}
     for name, path in batches.items():
-        current = pd.read_csv(path)
-        current[CATEGORICAL] = current[CATEGORICAL].astype(str)
+        with pipeline_step("drift", batch=name) as step:
+            current = pd.read_csv(path)
+            current[CATEGORICAL] = current[CATEGORICAL].astype(str)
 
-        table = drift_table(reference, current)
-        results[name] = table.to_dict(orient="records")
-        evidently_report(
-            reference, current, config.REPORTS_DIR / f"drift_report_{name}.html"
-        )
+            table = drift_table(reference, current)
+            results[name] = table.to_dict(orient="records")
+            evidently_report(
+                reference, current, config.REPORTS_DIR / f"drift_report_{name}.html"
+            )
+            step["rows"] = int(len(current))
+            step["psi_max"] = float(table["psi"].max())
 
-        print(f"\n=== {name} ===")
-        print(table.round(4).to_string(index=False))
+            print(f"\n=== {name} ===")
+            print(table.round(4).to_string(index=False))
 
     config.DRIFT_SUMMARY_PATH.write_text(json.dumps(results, indent=2))
     print(f"\nSummary saved to {config.DRIFT_SUMMARY_PATH}")

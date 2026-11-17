@@ -17,6 +17,7 @@ import pandas as pd
 from credit_monitoring import config
 from credit_monitoring.modeling.train import decide
 from credit_monitoring.monitoring.drift import build_reference
+from credit_monitoring.observability.logging import pipeline_step
 
 
 def group_metrics(df: pd.DataFrame, group_col: str) -> pd.DataFrame:
@@ -40,7 +41,7 @@ def group_metrics(df: pd.DataFrame, group_col: str) -> pd.DataFrame:
     return pd.DataFrame(rows).T
 
 
-if __name__ == "__main__":
+def _audit(step: dict) -> None:
     baseline = json.loads(config.BASELINE_METRICS_PATH.read_text())
     threshold = baseline["decision_policy"]["threshold"]
 
@@ -65,3 +66,9 @@ if __name__ == "__main__":
     for name, table in audit.items():
         print(f"\n=== {name} ===")
         print(table.round(4).to_string())
+    step["rows"] = int(len(reference))
+
+
+if __name__ == "__main__":
+    with pipeline_step("bias_audit") as step:
+        _audit(step)

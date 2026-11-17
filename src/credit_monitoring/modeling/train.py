@@ -17,6 +17,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from credit_monitoring import config
 from credit_monitoring.data.contract import BATCH, is_batch_rejected, validate_batch
 from credit_monitoring.data.features import build_features
+from credit_monitoring.observability.logging import pipeline_step
+from credit_monitoring.observability.tracking import log_training_run
 
 FEATURES = config.NUMERIC_FEATURES + config.CATEGORICAL_FEATURES
 
@@ -85,7 +87,7 @@ def evaluate_policy(y_true: np.ndarray, proba: np.ndarray, threshold: float) -> 
     }
 
 
-if __name__ == "__main__":
+def _train(step: dict) -> None:
     # 1. Same path as production data: raw → contract → features
     raw = pd.read_csv(config.REFERENCE_RAW_PATH)
     valid, blocked, _ = validate_batch(raw)
@@ -166,3 +168,14 @@ if __name__ == "__main__":
     config.BASELINE_METRICS_PATH.write_text(json.dumps(metrics, indent=2))
     print(f"\nModel saved to {config.MODEL_PATH}")
     print(f"Baseline metrics saved to {config.BASELINE_METRICS_PATH}")
+    step["rows"] = int(len(raw))
+    step["train_rows"] = int(len(X_train))
+    step["roc_auc"] = float(roc_auc)
+    log_training_run(
+        metrics, model=model, artifact_paths=[config.BASELINE_METRICS_PATH]
+    )
+
+
+if __name__ == "__main__":
+    with pipeline_step("train") as step:
+        _train(step)

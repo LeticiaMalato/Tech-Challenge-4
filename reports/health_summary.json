@@ -1,0 +1,338 @@
+{
+  "generated_at": "2026-11-17T19:06:34.964493+00:00",
+  "metrics_documented": [
+    {
+      "name": "pipeline_task_status",
+      "source": "logs",
+      "question": "Did this pipeline task finish successfully?"
+    },
+    {
+      "name": "pipeline_task_duration_seconds",
+      "source": "logs",
+      "question": "How long did ingestion, scoring or drift detection take?"
+    },
+    {
+      "name": "rows_processed",
+      "source": "logs / production_summary",
+      "question": "What volume did the batch carry?"
+    },
+    {
+      "name": "blocked_rows",
+      "source": "data contract",
+      "question": "How many rows were quarantined before scoring?"
+    },
+    {
+      "name": "contract_alerts",
+      "source": "data contract",
+      "question": "How many suspicious-but-accepted rows need review?"
+    },
+    {
+      "name": "psi_max / feature PSI",
+      "source": "Etapa 2 drift tests",
+      "question": "Did the input distribution move (available on the decision day)?"
+    },
+    {
+      "name": "calibration_gap",
+      "source": "Etapa 2 performance (labels)",
+      "question": "Is the model underestimating risk once labels arrive?"
+    },
+    {
+      "name": "silent_degradation",
+      "source": "PSI stable AND calibration_gap \u2265 1 p.p.",
+      "question": "Is the model failing while input-drift monitors stay green?"
+    },
+    {
+      "name": "roc_auc delta vs baseline",
+      "source": "performance vs baseline_metrics",
+      "question": "Did ranking quality drop beyond 0.03 AUC?"
+    }
+  ],
+  "pipeline": {
+    "steps": [
+      {
+        "task": "observability",
+        "batch": null,
+        "status": "success",
+        "duration_seconds": 3.8888,
+        "timestamp": "2026-11-17T18:35:19.819285+00:00",
+        "rows": 184509,
+        "error": null
+      },
+      {
+        "task": "split",
+        "batch": null,
+        "status": "success",
+        "duration_seconds": 11.2289,
+        "timestamp": "2026-11-17T18:58:16.509700+00:00",
+        "rows": 307511,
+        "error": null
+      },
+      {
+        "task": "contract",
+        "batch": "reference",
+        "status": "success",
+        "duration_seconds": 9.9118,
+        "timestamp": "2026-11-17T18:58:27.257208+00:00",
+        "rows": 246008,
+        "error": null
+      },
+      {
+        "task": "contract_invalid_batch",
+        "batch": "invalid",
+        "status": "success",
+        "duration_seconds": 0.1403,
+        "timestamp": "2026-11-17T18:58:27.397846+00:00",
+        "rows": 10,
+        "error": null
+      },
+      {
+        "task": "train",
+        "batch": null,
+        "status": "success",
+        "duration_seconds": 15.2861,
+        "timestamp": "2026-11-17T18:58:48.052578+00:00",
+        "rows": 246008,
+        "error": null
+      },
+      {
+        "task": "simulate",
+        "batch": null,
+        "status": "success",
+        "duration_seconds": 5.4344,
+        "timestamp": "2026-11-17T18:58:54.418038+00:00",
+        "rows": 61503,
+        "error": null
+      },
+      {
+        "task": "predict",
+        "batch": "control",
+        "status": "success",
+        "duration_seconds": 1.9568,
+        "timestamp": "2026-11-17T18:58:57.903362+00:00",
+        "rows": 61503,
+        "error": null
+      },
+      {
+        "task": "predict",
+        "batch": "data_drift",
+        "status": "success",
+        "duration_seconds": 1.9241,
+        "timestamp": "2026-11-17T18:58:59.827342+00:00",
+        "rows": 61503,
+        "error": null
+      },
+      {
+        "task": "predict",
+        "batch": "concept_drift",
+        "status": "success",
+        "duration_seconds": 1.9193,
+        "timestamp": "2026-11-17T18:59:01.746704+00:00",
+        "rows": 61503,
+        "error": null
+      },
+      {
+        "task": "drift",
+        "batch": "control",
+        "status": "success",
+        "duration_seconds": 2.5571,
+        "timestamp": "2026-11-17T18:59:15.365105+00:00",
+        "rows": 61503,
+        "error": null
+      },
+      {
+        "task": "drift",
+        "batch": "data_drift",
+        "status": "success",
+        "duration_seconds": 2.1497,
+        "timestamp": "2026-11-17T18:59:17.515076+00:00",
+        "rows": 61503,
+        "error": null
+      },
+      {
+        "task": "drift",
+        "batch": "concept_drift",
+        "status": "success",
+        "duration_seconds": 2.1761,
+        "timestamp": "2026-11-17T18:59:19.689520+00:00",
+        "rows": 61503,
+        "error": null
+      },
+      {
+        "task": "performance",
+        "batch": null,
+        "status": "success",
+        "duration_seconds": 6.0189,
+        "timestamp": "2026-11-17T18:59:27.421842+00:00",
+        "rows": 233710,
+        "error": null
+      },
+      {
+        "task": "bias_audit",
+        "batch": null,
+        "status": "success",
+        "duration_seconds": 3.3507,
+        "timestamp": "2026-11-17T18:59:34.302187+00:00",
+        "rows": 49201,
+        "error": null
+      }
+    ],
+    "failed_steps": 0,
+    "last_step_timestamp": "2026-11-17T18:59:34.302187+00:00"
+  },
+  "batches": [
+    {
+      "batch": "control",
+      "rows": 61503,
+      "blocked_rows": 0,
+      "contract_alerts": 763,
+      "alerts_by_rule": {
+        "annuity_above_income": 8,
+        "car_age_above_limit": 699,
+        "income_above_threshold": 56
+      },
+      "psi_max": 0.000593097989474018,
+      "psi_by_feature": {
+        "EXT_SOURCE_3": 0.000593097989474018,
+        "NAME_INCOME_TYPE": 0.0005237595221846854,
+        "AGE_YEARS": 0.0004631264464608685,
+        "EXT_SOURCE_2": 0.00045105229735207077,
+        "EXT_SOURCE_1": 0.0004139586288200423,
+        "EMPLOYMENT_GROUP": 0.0003003105742747121,
+        "AMT_ANNUITY": 0.00029386938233408967,
+        "AMT_INCOME_TOTAL": 0.00028057594797388383,
+        "RISK_SCORE": 0.00026003474694231103,
+        "NAME_EDUCATION_TYPE": 0.00023728967299513617,
+        "AMT_CREDIT": 0.00020740186321627116,
+        "CAR_AGE_GROUP": 9.429443630893054e-05,
+        "REGION_RATING_CLIENT_W_CITY": 1.1054547773433335e-05,
+        "NAME_CONTRACT_TYPE": 5.3311632475941505e-06,
+        "HOUSING_INFO_MISSING": 1.2071571023305332e-07
+      },
+      "drifted_features": [],
+      "drifted_feature_count": 0,
+      "calibration_gap": 9.985061127361361e-05,
+      "roc_auc": 0.735609512795661,
+      "auc_delta": 0.0033451059326738974,
+      "default_rate": 0.08072776937710356,
+      "mean_risk_score": 0.08062791876582995,
+      "default_rate_approved": 0.0622981579374673,
+      "flags": {
+        "drift_alert": false,
+        "calibration_alert": false,
+        "silent_degradation": false,
+        "performance_drop": false,
+        "contract_blocked": false
+      },
+      "alerts": []
+    },
+    {
+      "batch": "data_drift",
+      "rows": 61503,
+      "blocked_rows": 0,
+      "contract_alerts": 871,
+      "alerts_by_rule": {
+        "annuity_above_income": 10,
+        "car_age_above_limit": 699,
+        "income_above_threshold": 162
+      },
+      "psi_max": 0.5666319295833229,
+      "psi_by_feature": {
+        "NAME_INCOME_TYPE": 0.5666319295833229,
+        "AMT_INCOME_TOTAL": 0.17140161558424505,
+        "AMT_CREDIT": 0.14674728738467938,
+        "AMT_ANNUITY": 0.11999656480940403,
+        "EMPLOYMENT_GROUP": 0.039204737425896974,
+        "EXT_SOURCE_3": 0.000593097989474018,
+        "AGE_YEARS": 0.0004631264464608685,
+        "EXT_SOURCE_2": 0.00045105229735207077,
+        "EXT_SOURCE_1": 0.0004139586288200423,
+        "RISK_SCORE": 0.00039422874778530746,
+        "NAME_EDUCATION_TYPE": 0.00023728967299513617,
+        "CAR_AGE_GROUP": 9.429443630893054e-05,
+        "REGION_RATING_CLIENT_W_CITY": 1.1054547773433335e-05,
+        "NAME_CONTRACT_TYPE": 5.3311632475941505e-06,
+        "HOUSING_INFO_MISSING": 1.2071571023305332e-07
+      },
+      "drifted_features": [
+        "NAME_INCOME_TYPE",
+        "AMT_INCOME_TOTAL",
+        "AMT_CREDIT",
+        "AMT_ANNUITY"
+      ],
+      "drifted_feature_count": 4,
+      "calibration_gap": 0.014160170296740604,
+      "roc_auc": 0.710537539585262,
+      "auc_delta": -0.021726867277725104,
+      "default_rate": 0.09593027982374844,
+      "mean_risk_score": 0.08177010952700783,
+      "default_rate_approved": 0.07678526186253574,
+      "flags": {
+        "drift_alert": true,
+        "calibration_alert": true,
+        "silent_degradation": false,
+        "performance_drop": false,
+        "contract_blocked": false
+      },
+      "alerts": [
+        "feature_drift",
+        "calibration_gap"
+      ]
+    },
+    {
+      "batch": "concept_drift",
+      "rows": 61503,
+      "blocked_rows": 0,
+      "contract_alerts": 763,
+      "alerts_by_rule": {
+        "annuity_above_income": 8,
+        "car_age_above_limit": 699,
+        "income_above_threshold": 56
+      },
+      "psi_max": 0.000593097989474018,
+      "psi_by_feature": {
+        "EXT_SOURCE_3": 0.000593097989474018,
+        "NAME_INCOME_TYPE": 0.0005237595221846854,
+        "AGE_YEARS": 0.0004631264464608685,
+        "EXT_SOURCE_2": 0.00045105229735207077,
+        "EXT_SOURCE_1": 0.0004139586288200423,
+        "EMPLOYMENT_GROUP": 0.0003003105742747121,
+        "AMT_ANNUITY": 0.00029386938233408967,
+        "AMT_INCOME_TOTAL": 0.00028057594797388383,
+        "RISK_SCORE": 0.00026003474694231103,
+        "NAME_EDUCATION_TYPE": 0.00023728967299513617,
+        "AMT_CREDIT": 0.00020740186321627116,
+        "CAR_AGE_GROUP": 9.429443630893054e-05,
+        "REGION_RATING_CLIENT_W_CITY": 1.1054547773433335e-05,
+        "NAME_CONTRACT_TYPE": 5.3311632475941505e-06,
+        "HOUSING_INFO_MISSING": 1.2071571023305332e-07
+      },
+      "drifted_features": [],
+      "drifted_feature_count": 0,
+      "calibration_gap": 0.016310441964540928,
+      "roc_auc": 0.695311769134033,
+      "auc_delta": -0.036952637728954074,
+      "default_rate": 0.09693836073037088,
+      "mean_risk_score": 0.08062791876582995,
+      "default_rate_approved": 0.07922131813015318,
+      "flags": {
+        "drift_alert": false,
+        "calibration_alert": true,
+        "silent_degradation": true,
+        "performance_drop": true,
+        "contract_blocked": false
+      },
+      "alerts": [
+        "calibration_gap",
+        "silent_degradation",
+        "performance_drop"
+      ]
+    }
+  ],
+  "active_alerts": [
+    "calibration_gap",
+    "feature_drift",
+    "performance_drop",
+    "silent_degradation"
+  ],
+  "alert_count": 4
+}

@@ -253,19 +253,9 @@ def build_invalid_batch(reference: pd.DataFrame) -> pd.DataFrame:
     return batch
 
 
-if __name__ == "__main__":
-    reference = pd.read_csv(config.REFERENCE_RAW_PATH)
+def _demo_invalid_batch(reference: pd.DataFrame, step: dict) -> None:
+    from credit_monitoring.observability.quarantine import write_quarantine
 
-    # 1. Reference: the clean dataset is defined as the rows that pass the contract
-    valid, blocked, alerts = validate_batch(reference)
-    print(f"Reference: {len(reference)} rows | {len(reference) - len(valid)} blocked")
-    print("Blocked by rule:")
-    print(blocked.groupby("check")["index"].nunique().to_string())
-    print("Alerts by rule:")
-    print(alerts.groupby("check")["index"].nunique().to_string())
-    valid.to_csv(config.REFERENCE_CLEAN_PATH, index=False)
-
-    # 2. Invalid batch: each row must be blocked by exactly one rule
     batch = build_invalid_batch(reference)
     valid_batch, blocked_batch, alerts_batch = validate_batch(batch)
     print("\nInvalid batch - blocked:")
@@ -279,3 +269,30 @@ if __name__ == "__main__":
     valid_broken, blocked_broken, _ = validate_batch(broken)
     print("\nBatch without AMT_INCOME_TOTAL - accepted rows:", len(valid_broken))
     print(blocked_broken.to_string(index=False))
+    write_quarantine(broken, blocked_broken, "invalid_missing_column")
+    step["rows"] = int(len(batch))
+    step["blocked_rows"] = int(len(batch) - len(valid_batch))
+
+
+if __name__ == "__main__":
+    from credit_monitoring.observability.logging import pipeline_step
+    from credit_monitoring.observability.quarantine import write_quarantine
+
+    with pipeline_step("contract", batch="reference") as step:
+        reference = pd.read_csv(config.REFERENCE_RAW_PATH)
+
+        # 1. Reference: the clean dataset is defined as the rows that pass the contract
+        valid, blocked, alerts = validate_batch(reference)
+        blocked_n = len(reference) - len(valid)
+        print(f"Reference: {len(reference)} rows | {blocked_n} blocked")
+        print("Blocked by rule:")
+        print(blocked.groupby("check")["index"].nunique().to_string())
+        print("Alerts by rule:")
+        print(alerts.groupby("check")["index"].nunique().to_string())
+        valid.to_csv(config.REFERENCE_CLEAN_PATH, index=False)
+        write_quarantine(reference, blocked, "reference")
+        step["rows"] = int(len(reference))
+        step["blocked_rows"] = int(len(reference) - len(valid))
+
+    with pipeline_step("contract_invalid_batch", batch="invalid") as step:
+        _demo_invalid_batch(reference, step)

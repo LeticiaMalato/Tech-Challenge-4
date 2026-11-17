@@ -396,6 +396,8 @@ Alertas gerados nos relatórios já existentes:
 | Data Drift | `feature_drift` + `calibration_gap` (PSI de `NAME_INCOME_TYPE` significativo) |
 | Concept Drift | **`silent_degradation`** + `calibration_gap` + `performance_drop` (PSI idêntico ao controle, inadimplência dos aprovados sobe) |
 
+**Evidência de reprodução e de falha monitorada:** o pipeline foi executado do zero numa segunda máquina, e os resultados saíram iguais aos versionados (as diferenças ficaram na 15ª casa decimal dos scores, sem nenhuma decisão de crédito alterada). Na primeira tentativa, a chave de pseudonimização não estava definida: o `contract` falhou de propósito, a falha foi registrada no log e o dashboard exibiu o alerta `pipeline_task_failed`. Depois de definida a chave, as 14 tarefas terminaram com sucesso e o alerta saiu do painel.
+
 O arquivo `reports/metrics.prom` exporta as mesmas séries em OpenMetrics, para um node exporter ou Prometheus raspar se a equipe quiser integrar com a Fase 3. Não é obrigatório subir Grafana para cumprir o entregável: o dashboard HTML abre offline.
 
 ### Entregável
@@ -484,8 +486,6 @@ Grupos com menos de 100 clientes são reportados, mas não interpretados.
 
 ### 5. Plano de retenção
 
-
-
 | O que é guardado | Onde | Retenção no projeto |
 |---|---|---|
 | Dados brutos (Kaggle) | `data/`, fora do Git | Apenas na máquina de quem executa; descartáveis ao fim do projeto |
@@ -497,6 +497,8 @@ Grupos com menos de 100 clientes são reportados, mas não interpretados.
 | Execuções do MLflow | `mlflow.db` / `mlruns/`, fora do Git | Metadados de treino e monitoramento; sem PII de cliente |
 
 Numa operação real, os prazos de retenção dependeriam das obrigações legais e regulatórias do setor financeiro e de validação jurídica; após a finalidade, os dados deveriam ser eliminados ou anonimizados.
+
+**Gestão da chave de pseudonimização:** no projeto, a chave é gerada a cada sessão, o que basta para execuções independentes. Numa operação real, ela precisa ser **fixa** e guardada num cofre de segredos, com acesso restrito e rotação planejada: uma chave diferente a cada execução daria pseudônimos diferentes ao mesmo cliente e impediria ligar a quarentena de dias diferentes. Destruir a chave ao fim da retenção também é uma forma de impedir a reidentificação.
 
 ---
 
@@ -537,7 +539,21 @@ O risco mudou para os clientes com parcela alta em relação à renda. A regress
 
 1. Baixe o `application_train.csv` da competição Home Credit Default Risk (Kaggle), respeitando os termos de uso, e coloque-o em `data/`. O arquivo não é versionado.
 
-2. Instale as dependências e rode o pipeline, na ordem:
+2. Defina a chave de pseudonimização. Ela é **obrigatória**: a quarentena grava o identificador com HMAC-SHA256. Gere um valor aleatório e **não o versione**:
+
+```powershell
+# Windows PowerShell
+$env:CREDIT_MONITORING_PSEUDONYM_KEY = (uv run python -c "import secrets; print(secrets.token_hex(32))")
+```
+
+```bash
+# Linux / macOS
+export CREDIT_MONITORING_PSEUDONYM_KEY=$(uv run python -c "import secrets; print(secrets.token_hex(32))")
+```
+
+A variável vale só para o terminal atual. Sem ela, `data.contract` falha de propósito, em vez de usar uma chave fraca, e o dashboard registra o alerta `pipeline_task_failed`.
+
+3. Instale as dependências e rode o pipeline, na ordem:
 
 ```bash
 uv sync
@@ -553,6 +569,8 @@ uv run python -m credit_monitoring.governance.bias_audit
 uv run python -m credit_monitoring.observability
 ```
 
+Cada comando deve terminar com `pipeline step finished`. No Windows PowerShell, as linhas de log saem em vermelho com `NativeCommandError` porque o logging escreve no stderr; isso não indica falha. Quem decide é o código de saída (`$LASTEXITCODE` igual a 0) e o `status` gravado em `logs/pipeline.jsonl`.
+
 A última linha **não precisa reprocessar os CSVs**: ela lê os JSON já gravados em `reports/`, concatena `logs/pipeline.jsonl` se existir, grava o dashboard e registra os runs `monitoring` no MLflow.
 
 Para só inspecionar o rastreamento depois:
@@ -563,9 +581,9 @@ uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
 
 Abra http://localhost:5000 — runs `training` e `monitoring-*`, comparáveis lado a lado (PSI, calibração, flags).
 
-3. Análise causal: execute `eda/causal_analysis.ipynb` depois do pipeline.
+4. Análise causal: execute `eda/causal_analysis.ipynb` depois do pipeline.
 
-4. Testes e qualidade:
+5. Testes e qualidade:
 
 ```bash
 uv run pytest
@@ -594,7 +612,7 @@ Para testar o entregável visual **com os relatórios já versionados** (Etapa 2
 
 ```bash
 # Windows PowerShell
-$env:CREDIT_MONITORING_PSEUDONYM_KEY = "troque-por-um-segredo"
+$env:CREDIT_MONITORING_PSEUDONYM_KEY = (uv run python -c "import secrets; print(secrets.token_hex(32))")
 
 uv sync
 uv run python -m credit_monitoring.observability
@@ -608,7 +626,7 @@ uv run python -m credit_monitoring.observability
 
 Se o MLflow não estiver instalado ainda, `uv sync` passa a puxar a dependência nova.
 
-**Chave de pseudonimização:** a Etapa 3 grava a quarentena com o identificador HMAC. Defina `CREDIT_MONITORING_PSEUDONYM_KEY` com um valor secreto, que não deve ser versionado. Sem a chave, o programa falha ao escrever quarentena (não usa chave fraca em silêncio). Os testes passam a chave só no processo de teste.
+**Chave de pseudonimização:** ver o passo 2 de [Como executar](#como-executar). Os testes passam a chave só no processo de teste.
 
 **Restrição de compatibilidade:** o pandas está fixado abaixo da versão 3, porque o Evidently 0.7.23 importa uma função interna removida no pandas 3.
 
@@ -681,7 +699,6 @@ Tech-Challenge-4/
 - Duplicatas são verificadas dentro do lote, não contra o histórico de clientes já vistos.
 - A auditoria de viés usa o conjunto de teste da referência; ela não foi repetida nos cenários de drift.
 - O Prometheus/Grafana completo (scrape contínuo, Alertmanager) não faz parte deste repositório: o enunciado trata Prometheus-client como opcional. O arquivo `reports/metrics.prom` e o dashboard HTML cobrem o entregável visual.
-
 
 
 ---

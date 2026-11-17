@@ -13,6 +13,9 @@ from pathlib import Path
 from credit_monitoring import config
 from credit_monitoring.observability.logging import get_logger, safe_extra
 
+# MLflow 3 serializes sklearn with skops; numpy.dtype appears in StandardScaler.
+SKOPS_TRUSTED_TYPES = ["numpy.dtype"]
+
 
 def tracking_uri() -> str:
     env = os.environ.get("MLFLOW_TRACKING_URI")
@@ -28,6 +31,25 @@ def _configure_mlflow():
     mlflow.set_tracking_uri(tracking_uri())
     mlflow.set_experiment(config.MLFLOW_EXPERIMENT)
     return mlflow
+
+
+def _log_model(mlflow, model) -> None:
+    """Log the sklearn Pipeline; fall back to the joblib file if skops refuses it."""
+    try:
+        mlflow.sklearn.log_model(
+            sk_model=model,
+            artifact_path="model",
+            registered_model_name=config.MLFLOW_REGISTERED_MODEL,
+            skops_trusted_types=SKOPS_TRUSTED_TYPES,
+        )
+        return
+    except Exception as exc:
+        get_logger().warning(
+            "mlflow sklearn.log_model skipped",
+            extra=safe_extra({"error": str(exc)}),
+        )
+    if config.MODEL_PATH.exists():
+        mlflow.log_artifact(str(config.MODEL_PATH), artifact_path="model")
 
 
 def log_training_run(metrics: dict, model=None, artifact_paths: list[Path] | None = None):
@@ -58,17 +80,7 @@ def log_training_run(metrics: dict, model=None, artifact_paths: list[Path] | Non
                 if policy.get(key) is not None:
                     mlflow.log_metric(f"policy_{key}", float(policy[key]))
             if model is not None:
-                try:
-                    mlflow.sklearn.log_model(
-                        sk_model=model,
-                        artifact_path="model",
-                        registered_model_name=config.MLFLOW_REGISTERED_MODEL,
-                    )
-                except Exception as exc:  # registry is optional; metrics still matter
-                    logger.warning(
-                        "mlflow model registry skipped",
-                        extra=safe_extra({"error": str(exc)}),
-                    )
+                _log_model(mlflow, model)
             for path in artifact_paths or []:
                 if Path(path).exists():
                     mlflow.log_artifact(str(path))

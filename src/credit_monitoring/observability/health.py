@@ -97,7 +97,7 @@ def evaluate_batch(
 
 
 def summarize_pipeline_steps(records: list[dict]) -> list[dict]:
-    """Keep the finish event of each task (last occurrence wins)."""
+    """Keep the finish event of each task (last occurrence wins), oldest first."""
     steps: dict[str, dict] = {}
     for record in records:
         if record.get("event") != "pipeline_step_finished":
@@ -113,7 +113,7 @@ def summarize_pipeline_steps(records: list[dict]) -> list[dict]:
             "rows": record.get("rows"),
             "error": record.get("error"),
         }
-    return list(steps.values())
+    return sorted(steps.values(), key=lambda row: row.get("timestamp") or "")
 
 
 def build_health(

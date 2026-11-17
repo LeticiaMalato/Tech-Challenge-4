@@ -11,8 +11,6 @@ import pandas as pd
 import pandera.pandas as pa
 
 from credit_monitoring import config
-from credit_monitoring.observability.logging import pipeline_step
-from credit_monitoring.observability.quarantine import write_quarantine
 
 # Age limits in DAYS_BIRTH (negative days): the oldest age gives the smallest value
 MIN_DAYS_BIRTH = -config.MAX_AGE * config.DAYS_PER_YEAR
@@ -256,6 +254,8 @@ def build_invalid_batch(reference: pd.DataFrame) -> pd.DataFrame:
 
 
 def _demo_invalid_batch(reference: pd.DataFrame, step: dict) -> None:
+    from credit_monitoring.observability.quarantine import write_quarantine
+
     batch = build_invalid_batch(reference)
     valid_batch, blocked_batch, alerts_batch = validate_batch(batch)
     print("\nInvalid batch - blocked:")
@@ -275,6 +275,9 @@ def _demo_invalid_batch(reference: pd.DataFrame, step: dict) -> None:
 
 
 if __name__ == "__main__":
+    from credit_monitoring.observability.logging import pipeline_step
+    from credit_monitoring.observability.quarantine import write_quarantine
+
     with pipeline_step("contract", batch="reference") as step:
         reference = pd.read_csv(config.REFERENCE_RAW_PATH)
 

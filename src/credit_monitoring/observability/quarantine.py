@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pandas as pd
 
@@ -21,7 +22,7 @@ from credit_monitoring.observability.logging import get_logger, safe_extra
 
 def write_quarantine(
     raw: pd.DataFrame, blocked: pd.DataFrame, batch_name: str
-) -> str | None:
+) -> Path | None:
     """Persist blocked rows (pseudonymized) or a structural-failure summary."""
     if blocked.empty:
         return None
@@ -53,7 +54,7 @@ def write_quarantine(
                 }
             ),
         )
-        return str(path)
+        return path
 
     indexes = blocked.loc[blocked["index"] != BATCH, "index"].unique()
     quarantined = raw.loc[raw.index.intersection(indexes)].copy()
@@ -79,4 +80,4 @@ def write_quarantine(
             }
         ),
     )
-    return str(path)
+    return path

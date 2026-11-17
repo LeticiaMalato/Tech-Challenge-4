@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Observabilidade — credit scoring</title>
+  <style>
+body{font-family:Segoe UI,system-ui,sans-serif;margin:0;background:#0f1419;color:#e7ecf3}
+main{max-width:1100px;margin:0 auto;padding:2rem}
+h1,h2{font-weight:600}
+h1{font-size:1.6rem;margin:0 0 .3rem}
+.sub{color:#9aa7b8;margin-bottom:1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+.kpi{background:#1a2330;border:1px solid #2a3848;border-radius:12px;padding:1rem}
+.kpi .label{margin:0;color:#9aa7b8;font-size:.85rem}
+.kpi .value{margin:.3rem 0 0;font-size:1.6rem}
+.ok{--tone:#12b76a}.warning{--tone:#f79009}.critical{--tone:#f04438}
+.kpi.ok{border-color:#12b76a33}.kpi.warning{border-color:#f7900933}.kpi.critical{border-color:#f0443833}
+.kpi .value{color:var(--tone)}
+section{background:#1a2330;border:1px solid #2a3848;border-radius:12px;padding:1.2rem;margin-top:1.2rem}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:.45rem .5rem;border-bottom:1px solid #2a3848}
+tr.warning td:first-child{color:#f79009}
+tr.critical td:first-child{color:#f04438}
+tr.ok td:first-child{color:#12b76a}
+.alerts{margin:.4rem 0 0;padding-left:1.2rem}
+.muted{color:#9aa7b8}
+code{background:#0f1419;padding:.1rem .3rem;border-radius:4px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Etapa 3 — Observabilidade de pipelines e modelos</h1>
+  <p class="sub">Gerado em 2026-11-17T19:06:34.964493+00:00. Logs JSONL + MLflow + métricas de saúde. Cruza contrato de dados, PSI da Etapa 2 e calibração com rótulos.</p>
+  <div class="grid"><article class="kpi critical"><p class="label">Alertas ativos</p><p class="value">4</p></article><article class="kpi critical"><p class="label">Degradação silenciosa</p><p class="value">1</p></article><article class="kpi warning"><p class="label">PSI máximo</p><p class="value">0.5666</p></article><article class="kpi ok"><p class="label">Tarefas com falha</p><p class="value">0</p></article></div>
+  <section>
+    <h2>Alertas (Etapa 3)</h2>
+    <ul class='alerts'><li>calibration_gap</li><li>feature_drift</li><li>performance_drop</li><li>silent_degradation</li></ul>
+    <p class="muted">Degradação silenciosa = PSI estável em todas as features e erro de calibração ≥ 1%. Esse alerta só existe porque as duas camadas de monitoramento se cruzam.</p>
+  </section>
+  <section>
+    <h2>Saúde por lote</h2>
+    <table>
+      <thead><tr><th>lote</th><th>linhas</th><th>bloqueadas</th><th>PSI máx</th><th>erro de calibração</th><th>ROC-AUC</th><th>inadimplência dos aprovados</th><th>alertas</th></tr></thead>
+      <tbody><tr class='ok'><td><strong>control</strong></td><td>61503</td><td>0</td><td>0.0006</td><td>0.01%</td><td>0.7356</td><td>6.23%</td><td>estável</td></tr><tr class='warning'><td><strong>data_drift</strong></td><td>61503</td><td>0</td><td>0.5666</td><td>1.42%</td><td>0.7105</td><td>7.68%</td><td>feature_drift, calibration_gap</td></tr><tr class='critical'><td><strong>concept_drift</strong></td><td>61503</td><td>0</td><td>0.0006</td><td>1.63%</td><td>0.6953</td><td>7.92%</td><td>calibration_gap, silent_degradation, performance_drop</td></tr></tbody>
+    </table>
+  </section>
+  <section>
+    <h2>PSI por feature × lote</h2>
+    <p class="muted">Verde &lt; 0.10 (estável); âmbar até 0.25 (moderado); vermelho acima (significativo).</p>
+    <table>
+      <thead><tr><th>feature</th><th>control</th><th>data_drift</th><th>concept_drift</th></tr></thead>
+      <tbody><tr><td>AGE_YEARS</td><td style='color:#027a48'>0.0005</td><td style='color:#027a48'>0.0005</td><td style='color:#027a48'>0.0005</td></tr><tr><td>AMT_ANNUITY</td><td style='color:#027a48'>0.0003</td><td style='color:#b54708'>0.1200</td><td style='color:#027a48'>0.0003</td></tr><tr><td>AMT_CREDIT</td><td style='color:#027a48'>0.0002</td><td style='color:#b54708'>0.1467</td><td style='color:#027a48'>0.0002</td></tr><tr><td>AMT_INCOME_TOTAL</td><td style='color:#027a48'>0.0003</td><td style='color:#b54708'>0.1714</td><td style='color:#027a48'>0.0003</td></tr><tr><td>CAR_AGE_GROUP</td><td style='color:#027a48'>0.0001</td><td style='color:#027a48'>0.0001</td><td style='color:#027a48'>0.0001</td></tr><tr><td>EMPLOYMENT_GROUP</td><td style='color:#027a48'>0.0003</td><td style='color:#027a48'>0.0392</td><td style='color:#027a48'>0.0003</td></tr><tr><td>EXT_SOURCE_1</td><td style='color:#027a48'>0.0004</td><td style='color:#027a48'>0.0004</td><td style='color:#027a48'>0.0004</td></tr><tr><td>EXT_SOURCE_2</td><td style='color:#027a48'>0.0005</td><td style='color:#027a48'>0.0005</td><td style='color:#027a48'>0.0005</td></tr><tr><td>EXT_SOURCE_3</td><td style='color:#027a48'>0.0006</td><td style='color:#027a48'>0.0006</td><td style='color:#027a48'>0.0006</td></tr><tr><td>HOUSING_INFO_MISSING</td><td style='color:#027a48'>0.0000</td><td style='color:#027a48'>0.0000</td><td style='color:#027a48'>0.0000</td></tr><tr><td>NAME_CONTRACT_TYPE</td><td style='color:#027a48'>0.0000</td><td style='color:#027a48'>0.0000</td><td style='color:#027a48'>0.0000</td></tr><tr><td>NAME_EDUCATION_TYPE</td><td style='color:#027a48'>0.0002</td><td style='color:#027a48'>0.0002</td><td style='color:#027a48'>0.0002</td></tr><tr><td>NAME_INCOME_TYPE</td><td style='color:#027a48'>0.0005</td><td style='color:#b42318'>0.5666</td><td style='color:#027a48'>0.0005</td></tr><tr><td>REGION_RATING_CLIENT_W_CITY</td><td style='color:#027a48'>0.0000</td><td style='color:#027a48'>0.0000</td><td style='color:#027a48'>0.0000</td></tr><tr><td>RISK_SCORE</td><td style='color:#027a48'>0.0003</td><td style='color:#027a48'>0.0004</td><td style='color:#027a48'>0.0003</td></tr></tbody>
+    </table>
+  </section>
+  <section>
+    <h2>Execução do pipeline (logs)</h2>
+    <p class="muted">Fonte: <code>logs/pipeline.jsonl</code>. Última ocorrência de cada tarefa.</p>
+    <table>
+      <thead><tr><th>tarefa</th><th>lote</th><th>status</th><th>duração (s)</th><th>linhas</th><th>erro</th></tr></thead>
+      <tbody><tr class='ok'><td>observability</td><td>—</td><td>success</td><td>3.889</td><td>184509</td><td></td></tr><tr class='ok'><td>split</td><td>—</td><td>success</td><td>11.229</td><td>307511</td><td></td></tr><tr class='ok'><td>contract</td><td>reference</td><td>success</td><td>9.912</td><td>246008</td><td></td></tr><tr class='ok'><td>contract_invalid_batch</td><td>invalid</td><td>success</td><td>0.140</td><td>10</td><td></td></tr><tr class='ok'><td>train</td><td>—</td><td>success</td><td>15.286</td><td>246008</td><td></td></tr><tr class='ok'><td>simulate</td><td>—</td><td>success</td><td>5.434</td><td>61503</td><td></td></tr><tr class='ok'><td>predict</td><td>control</td><td>success</td><td>1.957</td><td>61503</td><td></td></tr><tr class='ok'><td>predict</td><td>data_drift</td><td>success</td><td>1.924</td><td>61503</td><td></td></tr><tr class='ok'><td>predict</td><td>concept_drift</td><td>success</td><td>1.919</td><td>61503</td><td></td></tr><tr class='ok'><td>drift</td><td>control</td><td>success</td><td>2.557</td><td>61503</td><td></td></tr><tr class='ok'><td>drift</td><td>data_drift</td><td>success</td><td>2.150</td><td>61503</td><td></td></tr><tr class='ok'><td>drift</td><td>concept_drift</td><td>success</td><td>2.176</td><td>61503</td><td></td></tr><tr class='ok'><td>performance</td><td>—</td><td>success</td><td>6.019</td><td>233710</td><td></td></tr><tr class='ok'><td>bias_audit</td><td>—</td><td>success</td><td>3.351</td><td>49201</td><td></td></tr></tbody>
+    </table>
+  </section>
+  <section>
+    <h2>Métricas de saúde documentadas (Etapa 3)</h2>
+    <table>
+      <thead><tr><th>métrica</th><th>origem</th><th>pergunta que responde</th></tr></thead>
+      <tbody><tr><td><code>pipeline_task_status</code></td><td>logs</td><td>Did this pipeline task finish successfully?</td></tr><tr><td><code>pipeline_task_duration_seconds</code></td><td>logs</td><td>How long did ingestion, scoring or drift detection take?</td></tr><tr><td><code>rows_processed</code></td><td>logs / production_summary</td><td>What volume did the batch carry?</td></tr><tr><td><code>blocked_rows</code></td><td>data contract</td><td>How many rows were quarantined before scoring?</td></tr><tr><td><code>contract_alerts</code></td><td>data contract</td><td>How many suspicious-but-accepted rows need review?</td></tr><tr><td><code>psi_max / feature PSI</code></td><td>Etapa 2 drift tests</td><td>Did the input distribution move (available on the decision day)?</td></tr><tr><td><code>calibration_gap</code></td><td>Etapa 2 performance (labels)</td><td>Is the model underestimating risk once labels arrive?</td></tr><tr><td><code>silent_degradation</code></td><td>PSI stable AND calibration_gap ≥ 1 p.p.</td><td>Is the model failing while input-drift monitors stay green?</td></tr><tr><td><code>roc_auc delta vs baseline</code></td><td>performance vs baseline_metrics</td><td>Did ranking quality drop beyond 0.03 AUC?</td></tr></tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

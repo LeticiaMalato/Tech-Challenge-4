@@ -183,11 +183,11 @@ code{background:#0f1419;padding:.1rem .3rem;border-radius:4px}
 </head>
 <body>
 <main>
-  <h1>Observabilidade do pipeline e do modelo</h1>
-  <p class="sub">Gerado em {generated}. Combina logs de execução, contrato de dados, PSI da Etapa 2 e calibração com rótulos.</p>
+  <h1>Etapa 3 — Observabilidade de pipelines e modelos</h1>
+  <p class="sub">Gerado em {generated}. Logs JSONL + MLflow + métricas de saúde. Cruza contrato de dados, PSI da Etapa 2 e calibração com rótulos.</p>
   <div class="grid">{kpi_html}</div>
   <section>
-    <h2>Alertas</h2>
+    <h2>Alertas (Etapa 3)</h2>
     {alert_html}
     <p class="muted">Degradação silenciosa = PSI estável em todas as features e erro de calibração ≥ {config.CALIBRATION_GAP_ALERT:.0%}. Esse alerta só existe porque as duas camadas de monitoramento se cruzam.</p>
   </section>
@@ -207,14 +207,15 @@ code{background:#0f1419;padding:.1rem .3rem;border-radius:4px}
     </table>
   </section>
   <section>
-    <h2>Execução do pipeline</h2>
+    <h2>Execução do pipeline (logs)</h2>
+    <p class="muted">Fonte: <code>logs/pipeline.jsonl</code>. Última ocorrência de cada tarefa.</p>
     <table>
       <thead><tr><th>tarefa</th><th>lote</th><th>status</th><th>duração (s)</th><th>linhas</th><th>erro</th></tr></thead>
-      <tbody>{"".join(step_rows) or "<tr><td colspan='6' class='muted'>Nenhum log ainda. Rode o pipeline com a Etapa 3 para preencher esta tabela.</td></tr>"}</tbody>
+      <tbody>{"".join(step_rows) or "<tr><td colspan='6' class='muted'>Nenhum log ainda. Rode o pipeline e depois <code>uv run python -m credit_monitoring.observability</code>.</td></tr>"}</tbody>
     </table>
   </section>
   <section>
-    <h2>Métricas de saúde documentadas</h2>
+    <h2>Métricas de saúde documentadas (Etapa 3)</h2>
     <table>
       <thead><tr><th>métrica</th><th>origem</th><th>pergunta que responde</th></tr></thead>
       <tbody>{metric_rows}</tbody>

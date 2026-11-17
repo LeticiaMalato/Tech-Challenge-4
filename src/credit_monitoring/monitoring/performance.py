@@ -16,6 +16,7 @@ import pandas as pd
 from sklearn.metrics import average_precision_score, roc_auc_score
 
 from credit_monitoring import config
+from credit_monitoring.observability.logging import pipeline_step
 
 BATCHES = {
     "control": config.PREDICTIONS_CONTROL_PATH,
@@ -135,12 +136,11 @@ def build_html(summary: pd.DataFrame, segments: dict, bands: dict) -> str:
     return f"<!doctype html><html><head><meta charset='utf-8'>{style}</head><body>{body}</body></html>"
 
 
-if __name__ == "__main__":
+def _evaluate(step: dict) -> None:
     import joblib
 
     from credit_monitoring.modeling.train import decide
     from credit_monitoring.monitoring.drift import build_reference
-
     baseline = json.loads(config.BASELINE_METRICS_PATH.read_text())
     threshold = baseline["decision_policy"]["threshold"]
     burden_limit = json.loads(config.SIMULATION_SUMMARY_PATH.read_text())[
@@ -182,3 +182,9 @@ if __name__ == "__main__":
     for name, table in segments.items():
         print(f"\n{name}:\n{table.round(4).to_string()}")
     print(f"\nReport saved to {config.PERFORMANCE_REPORT_PATH}")
+    step["rows"] = int(summary["rows_scored"].sum())
+
+
+if __name__ == "__main__":
+    with pipeline_step("performance") as step:
+        _evaluate(step)

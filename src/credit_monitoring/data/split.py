@@ -4,9 +4,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from credit_monitoring import config
+from credit_monitoring.observability.logging import pipeline_step
 
 
 def main() -> None:
+    with pipeline_step("split") as step:
+        _split(step)
+
+
+def _split(step: dict) -> None:
     # 1. Read the original dataset (path from config)
     df = pd.read_csv(config.TRAIN_DATA_PATH)
 
@@ -35,6 +41,9 @@ def main() -> None:
         production_df[config.ID_COLUMN]
     )
     print(f"Shared IDs: {len(shared_ids)}")
+    step["rows"] = int(len(df))
+    step["reference_rows"] = int(len(reference_df))
+    step["production_rows"] = int(len(production_df))
 
 
 if __name__ == "__main__":

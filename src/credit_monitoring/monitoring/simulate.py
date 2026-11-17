@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 from credit_monitoring import config
+from credit_monitoring.observability.logging import pipeline_step
 
 
 def raise_default_rate(
@@ -99,7 +100,7 @@ def simulate_concept_drift(
     return concept, group
 
 
-if __name__ == "__main__":
+def _simulate(step: dict) -> None:
     target = config.TARGET_COLUMN
     production = pd.read_csv(config.PRODUCTION_RAW_PATH)
     reference = pd.read_csv(config.REFERENCE_RAW_PATH)
@@ -158,3 +159,9 @@ if __name__ == "__main__":
     config.REPORTS_DIR.mkdir(exist_ok=True)
     config.SIMULATION_SUMMARY_PATH.write_text(json.dumps(summary, indent=2))
     print(json.dumps(summary, indent=2))
+    step["rows"] = int(len(production))
+
+
+if __name__ == "__main__":
+    with pipeline_step("simulate") as step:
+        _simulate(step)

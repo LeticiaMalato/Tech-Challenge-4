@@ -60,6 +60,10 @@ application_train.csv (Kaggle)
           │           (gênero e faixa etária)  monitoring/drift.py          monitoring/performance.py
           │                                   PSI/KS + Evidently            calibração e desempenho
           │                                   (sem rótulos: "no dia")       ("meses depois")
+          │                                                 │
+          │                                                 ▼
+          │                              observability/  logs JSONL + MLflow
+          │                              dashboard HTML + métricas Prometheus
           ▼
      reports/  (somente resultados agregados, versionados)
 ```
@@ -345,7 +349,60 @@ Artefatos: `reports/performance_report.html`, `reports/performance_summary.json`
 
 ## Etapa 3 — Observabilidade
 
+Foco da disciplina: visibilidade operacional dos pipelines, da infraestrutura e dos modelos. O PDF pede três coisas: **centralizar logs e métricas** (incluindo os testes de drift da Etapa 2), **rastrear o ciclo de vida** (MLflow) e **documentar as métricas de saúde**. Prometheus-client é opcional no enunciado; a stack escolhida é logs estruturados + MLflow + dashboard HTML (e um arquivo OpenMetrics para quem quiser raspar depois).
 
+### Três camadas
+
+| Camada | Onde | Pergunta que responde |
+|---|---|---|
+| Logs estruturados | `logs/pipeline.jsonl` (não versionado) | a tarefa de ingestão, treino, scoring ou drift **passou ou falhou**, em quanto tempo, com que volume? |
+| Rastreamento | MLflow (SQLite local `mlflow.db`) | este modelo degradou? desde quando? com quais parâmetros foi treinado? |
+| Saúde e alertas | `reports/observability_dashboard.html` | o pipeline está de pé **agora**, e qual lote disparou drift ou degradação silenciosa? |
+
+Nenhuma camada substitui a outra. O dashboard e o MLflow leem o **mesmo** veredito (`reports/health_summary.json`), calculado em `observability/health.py`.
+
+### Logs de execução
+
+Cada módulo do pipeline emite `pipeline_step_started` / `pipeline_step_finished` (e `pipeline_step_failed` se quebrar). O formato no arquivo é JSON Lines, ingerível por Loki, CloudWatch ou Datadog sem parser próprio; o terminal continua legível.
+
+Linhas bloqueadas pelo contrato **não vão para o log** com o `SK_ID_CURR` original. Elas vão para `data/quarantine/`, com o identificador **HMAC-SHA256** da Etapa 4 (`CREDIT_MONITORING_PSEUDONYM_KEY`). Rejeição estrutural do lote inteiro gera só um resumo (`reason: structural`), sem despejar as linhas.
+
+### MLflow
+
+Dois tipos de run no experimento `credit-scoring`, separados pela tag `run_type`:
+
+- **`training`** — parâmetros, ROC-AUC / PR-AUC, política de 90%, modelo no Model Registry (`credit-scoring-baseline`).
+- **`monitoring`** — um run por lote (`control`, `data_drift`, `concept_drift`) com PSI máximo, erro de calibração, linhas bloqueadas, flags de alerta e os HTML do Evidently como artefatos.
+
+O backend é **SQLite** (o file store do MLflow 3 está em *maintenance mode* e o Registry exige banco). Falha de rastreamento **não derruba o pipeline**: o erro vira um warning no log e o job segue. Isso está coberto por teste.
+
+### Métricas de saúde documentadas
+
+| Métrica | Origem | O que vigia |
+|---|---|---|
+| `pipeline_task_status` / `duration_seconds` | logs | sucesso/falha e latência de cada tarefa |
+| `rows_processed` | logs e `production_summary` | volume do lote |
+| `blocked_rows` / `contract_alerts` | contrato | ingestão recusada vs. linhas suspeitas que passaram |
+| `psi_max` e PSI por feature | Etapa 2 (sem rótulos) | mudança de distribuição no dia da decisão |
+| `calibration_gap` | Etapa 2 (com rótulos) | modelo subestimando risco quando os rótulos chegam |
+| `silent_degradation` | PSI estável **e** \|gap\| ≥ 1 p.p. | o alerta que nenhum monitor sozinho levanta |
+| `roc_auc` vs baseline | desempenho − `baseline_metrics` | queda de ranking ≥ 0,03 |
+
+Alertas gerados nos relatórios já existentes:
+
+| Lote | O que o painel mostra |
+|---|---|
+| Controle | estável (falso alarme ausente) |
+| Data Drift | `feature_drift` + `calibration_gap` (PSI de `NAME_INCOME_TYPE` significativo) |
+| Concept Drift | **`silent_degradation`** + `calibration_gap` + `performance_drop` (PSI idêntico ao controle, inadimplência dos aprovados sobe) |
+
+O arquivo `reports/metrics.prom` exporta as mesmas séries em OpenMetrics, para um node exporter ou Prometheus raspar se a equipe quiser integrar com a Fase 3. Não é obrigatório subir Grafana para cumprir o entregável: o dashboard HTML abre offline.
+
+### Entregável
+
+- Dashboard: `reports/observability_dashboard.html`
+- Snapshot: `reports/health_summary.json`
+- UI do MLflow: `uv run mlflow ui --backend-store-uri sqlite:///mlflow.db`
 
 ---
 
@@ -435,7 +492,9 @@ Grupos com menos de 100 clientes são reportados, mas não interpretados.
 | Predições linha a linha | `data/`, fora do Git | Regeneráveis; não precisam ser guardadas |
 | Modelo treinado | `models/`, fora do Git | Regenerável a partir do código |
 | Resultados agregados | `reports/`, versionados | Mantidos: não contêm dados pessoais |
-| Logs, quarentena e execuções do MLflow | A definir (Etapa 3) | A definir; a quarentena contém dados pessoais, e o identificador será pseudonimizado com HMAC-SHA256 (chave secreta guardada fora do repositório) |
+| Logs de execução (JSONL) | `logs/`, fora do Git | Regeneráveis; sem identificador de cliente |
+| Quarentena (linhas bloqueadas) | `data/quarantine/`, fora do Git | Contém dados pessoais pseudonimizados (HMAC-SHA256); descartável ao fim do projeto |
+| Execuções do MLflow | `mlflow.db` / `mlruns/`, fora do Git | Metadados de treino e monitoramento; sem PII de cliente |
 
 Numa operação real, os prazos de retenção dependeriam das obrigações legais e regulatórias do setor financeiro e de validação jurídica; após a finalidade, os dados deveriam ser eliminados ou anonimizados.
 
@@ -467,7 +526,7 @@ O risco mudou para os clientes com parcela alta em relação à renda. A regress
 
 ## Testes e qualidade de código
 
-- **pytest**, com dados sintéticos (sem dependência dos CSVs): contrato (cada regra de bloqueio e de alerta, falhas estruturais, lote inválido de ponta a ponta), transformações, modelo, política de decisão (incluindo casos sem inadimplentes ou sem recusados), métricas de desempenho, pseudonimização (mesma chave gera o mesmo pseudônimo, chaves diferentes geram pseudônimos diferentes, o ID original não aparece, chave ausente gera erro) e a garantia de que o gênero não é feature do modelo.
+- **pytest**, com dados sintéticos (sem dependência dos CSVs): contrato (cada regra de bloqueio e de alerta, falhas estruturais, lote inválido de ponta a ponta), transformações, modelo, política de decisão (incluindo casos sem inadimplentes ou sem recusados), métricas de desempenho, pseudonimização (mesma chave gera o mesmo pseudônimo, chaves diferentes geram pseudônimos diferentes, o ID original não aparece, chave ausente gera erro), a garantia de que o gênero não é feature do modelo, logs JSONL, quarentena sem PII, alerta de degradação silenciosa e isolamento de falha do MLflow.
 - **Ruff** (lint e formatação) e **pre-commit** (Ruff, bloqueio de arquivos grandes, finais de linha e espaços). Os relatórios HTML em `reports/` são exceções documentadas: são entregáveis gerados, não editados à mão.
 
 ---
@@ -491,7 +550,18 @@ uv run python -m credit_monitoring.monitoring.predict
 uv run python -m credit_monitoring.monitoring.drift
 uv run python -m credit_monitoring.monitoring.performance
 uv run python -m credit_monitoring.governance.bias_audit
+uv run python -m credit_monitoring.observability
 ```
+
+A última linha **não precisa reprocessar os CSVs**: ela lê os JSON já gravados em `reports/`, concatena `logs/pipeline.jsonl` se existir, grava o dashboard e registra os runs `monitoring` no MLflow.
+
+Para só inspecionar o rastreamento depois:
+
+```bash
+uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
+Abra http://localhost:5000 — runs `training` e `monitoring-*`, comparáveis lado a lado (PSI, calibração, flags).
 
 3. Análise causal: execute `eda/causal_analysis.ipynb` depois do pipeline.
 
@@ -503,7 +573,42 @@ uv run ruff check .
 uv run pre-commit run --all-files
 ```
 
-**Chave de pseudonimização:** a Etapa 3 grava logs com o identificador pseudonimizado. Defina a variável de ambiente `CREDIT_MONITORING_PSEUDONYM_KEY` com um valor secreto, que não deve ser versionado.
+### Como testar a Etapa 3
+
+Os testes automatizados **não usam** `application_train.csv`. Cubra logs, quarentena, alertas e MLflow com:
+
+```bash
+uv run pytest tests/test_logging.py tests/test_quarantine.py tests/test_health.py tests/test_tracking.py -q
+```
+
+O que cada arquivo prova:
+
+| Teste | Como conferir na prática |
+|---|---|
+| `test_logging` | JSONL com `task`, `status`, `duration_seconds`; falha da tarefa é relançada e registrada |
+| `test_quarantine` | o `SK_ID_CURR` original não aparece no CSV; rejeição estrutural não despeja linhas |
+| `test_health` | controle sem alerta; data drift com PSI; concept drift = **degradação silenciosa** |
+| `test_tracking` | MLflow fora do ar não quebra o pipeline; run `monitoring` grava métricas e flags |
+
+Para testar o entregável visual **com os relatórios já versionados** (Etapa 2 já rodou neste repo):
+
+```bash
+# Windows PowerShell
+$env:CREDIT_MONITORING_PSEUDONYM_KEY = "troque-por-um-segredo"
+
+uv sync
+uv run python -m credit_monitoring.observability
+```
+
+1. Abra `reports/observability_dashboard.html` no navegador. No lote `concept_drift` deve aparecer degradação silenciosa; no `data_drift`, PSI alto; no `control`, nenhum alerta de modelo.
+2. Confira `reports/health_summary.json` (`active_alerts`) e `reports/metrics.prom` (séries `credit_silent_degradation` e `credit_max_psi`).
+3. Suba a UI: `uv run mlflow ui --backend-store-uri sqlite:///mlflow.db` e compare os runs `monitoring-control` vs `monitoring-concept_drift`.
+4. Para ver logs de ponta a ponta, rode de novo o pipeline (split → … → observability) e abra `logs/pipeline.jsonl`: cada tarefa tem `status` e `duration_seconds`.
+5. Para ver a quarentena: `uv run python -m credit_monitoring.data.contract` com a chave definida; os 5 clientes inconsistentes da referência saem em `data/quarantine/` sem o ID original.
+
+Se o MLflow não estiver instalado ainda, `uv sync` passa a puxar a dependência nova.
+
+**Chave de pseudonimização:** a Etapa 3 grava a quarentena com o identificador HMAC. Defina `CREDIT_MONITORING_PSEUDONYM_KEY` com um valor secreto, que não deve ser versionado. Sem a chave, o programa falha ao escrever quarentena (não usa chave fraca em silêncio). Os testes passam a chave só no processo de teste.
 
 **Restrição de compatibilidade:** o pandas está fixado abaixo da versão 3, porque o Evidently 0.7.23 importa uma função interna removida no pandas 3.
 
@@ -526,6 +631,7 @@ Tech-Challenge-4/
 │   │   ├── predict.py          # Score e decisão dos lotes de produção
 │   │   ├── drift.py            # PSI/KS e relatórios Evidently
 │   │   └── performance.py      # Calibração e desempenho com rótulos
+│   ├── observability/          # Etapa 3: logs, MLflow, saúde e dashboard
 │   └── governance/
 │       ├── bias_audit.py       # Auditoria de viés por gênero e faixa etária
 │       └── privacy.py          # Pseudonimização do identificador (HMAC-SHA256)
@@ -556,6 +662,8 @@ Tech-Challenge-4/
 - **PSI decide, KS contextualiza:** com amostras grandes, o p-valor acusa diferenças irrelevantes.
 - **Decisão separada da avaliação:** `decide()` não precisa de rótulos (disponível no dia); `evaluate_policy()` só roda quando eles existem.
 - **Métricas globais detectam, segmentos diagnosticam:** o erro de calibração global dispara o alerta; os segmentos explicam onde está o problema.
+- **Observabilidade não é o caminho crítico:** falha do MLflow vira warning; o job de scoring continua.
+- **Um veredito, três saídas:** dashboard, OpenMetrics e runs `monitoring` leem `health.py`.
 - **Convenção de idioma:** código, notebooks e commits em inglês; documentação em português.
 
 ---
@@ -572,6 +680,7 @@ Tech-Challenge-4/
 - `NOT_EMPLOYED` agrupa aposentados e desempregados, o que contribui para a falha do modelo e reduz a sensibilidade do monitoramento dessa feature.
 - Duplicatas são verificadas dentro do lote, não contra o histórico de clientes já vistos.
 - A auditoria de viés usa o conjunto de teste da referência; ela não foi repetida nos cenários de drift.
+- O Prometheus/Grafana completo (scrape contínuo, Alertmanager) não faz parte deste repositório: o enunciado trata Prometheus-client como opcional. O arquivo `reports/metrics.prom` e o dashboard HTML cobrem o entregável visual.
 
 
 

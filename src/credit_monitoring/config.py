@@ -141,3 +141,15 @@ MIN_SEGMENT_SIZE = 100  # smaller groups are reported but not interpreted
 
 # Pseudonymization: the secret key comes from an environment variable, never from the code
 PSEUDONYM_KEY_ENV = "CREDIT_MONITORING_PSEUDONYM_KEY"
+
+# Observability (logs and MLflow stay local; only aggregated health is versioned)
+LOGS_DIR = PROJECT_ROOT / "logs"
+PIPELINE_LOG_PATH = LOGS_DIR / "pipeline.jsonl"
+QUARANTINE_DIR = DATA_DIR / "quarantine"
+MLFLOW_EXPERIMENT = "credit-scoring"
+MLFLOW_REGISTERED_MODEL = "credit-scoring-baseline"
+MLFLOW_DB_PATH = PROJECT_ROOT / "mlflow.db"
+HEALTH_SUMMARY_PATH = REPORTS_DIR / "health_summary.json"
+OBSERVABILITY_DASHBOARD_PATH = REPORTS_DIR / "observability_dashboard.html"
+PROMETHEUS_METRICS_PATH = REPORTS_DIR / "metrics.prom"
+ROC_AUC_DROP_ALERT = 0.03  # warning when production AUC falls this much vs baseline

@@ -15,13 +15,17 @@ from credit_monitoring import config
 from credit_monitoring.data.contract import BATCH, is_batch_rejected, validate_batch
 from credit_monitoring.data.features import build_features
 from credit_monitoring.modeling.train import decide, evaluate_policy, prepare_features
+from credit_monitoring.observability.logging import pipeline_step
+from credit_monitoring.observability.quarantine import write_quarantine
 
 
 def score_batch(
-    raw: pd.DataFrame, model, threshold: float
+    raw: pd.DataFrame, model, threshold: float, batch_name: str | None = None
 ) -> tuple[pd.DataFrame, dict]:
     """Validate, transform, score and decide. Label metrics only if TARGET exists."""
     valid, blocked, alerts = validate_batch(raw)
+    if batch_name:
+        write_quarantine(raw, blocked, batch_name)
     if is_batch_rejected(blocked):
         raise SystemExit(
             "Batch rejected by the data contract:\n" + blocked.to_string(index=False)
@@ -74,9 +78,15 @@ if __name__ == "__main__":
     }
     summaries = {"threshold": threshold}
     for name, (input_path, output_path) in batches.items():
-        scored, summary = score_batch(pd.read_csv(input_path), model, threshold)
-        scored.to_csv(output_path, index=False)
-        summaries[name] = summary
+        with pipeline_step("predict", batch=name) as step:
+            scored, summary = score_batch(
+                pd.read_csv(input_path), model, threshold, batch_name=name
+            )
+            scored.to_csv(output_path, index=False)
+            summaries[name] = summary
+            step["rows"] = summary["rows"]
+            step["blocked_rows"] = summary["blocked_rows"]
+            step["approval_rate"] = summary["approval_rate"]
 
     config.PRODUCTION_SUMMARY_PATH.write_text(json.dumps(summaries, indent=2))
 

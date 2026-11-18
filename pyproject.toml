@@ -1,5 +1,5 @@
 [project]
-name = "tech-challenge-4"
+name = "credit_monitoring"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,8 +8,11 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "evidently>=0.7.23",
+    "mlflow>=2.21,<4",
     "numpy>=2.5.4",
-    "pandas>=3.1.0",
+    "pandas>=2.2,<3",
+    "pandera>=0.36.0",
     "scikit-learn>=1.9.1",
 ]
 
@@ -22,5 +25,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.7.0",
+    "pytest>=9.2.0",
     "ruff>=0.17.3",
 ]

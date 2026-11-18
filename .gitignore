@@ -218,3 +218,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dados do projeto (não versionar)
+/data/
+/models/
+
+# Observabilidade local (logs com contexto de execução; MLflow com metadados de run)
+/logs/
+/mlruns/
+/mlflow.db
+/mlflow.db-*

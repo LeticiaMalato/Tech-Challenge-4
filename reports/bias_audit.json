@@ -1,0 +1,66 @@
+{
+  "gender": {
+    "F": {
+      "clients": 32240,
+      "default_rate": 0.06898263027295286,
+      "approval_rate": 0.9134615384615384,
+      "default_rate_approved": 0.05419354838709677,
+      "approval_rate_good_payers": 0.9279717484008528,
+      "mean_risk_score": 0.07684104500739847,
+      "calibration_gap": -0.00785841473444561,
+      "interpretable": true
+    },
+    "M": {
+      "clients": 16961,
+      "default_rate": 0.10305996108720004,
+      "approval_rate": 0.8768940510583102,
+      "default_rate_approved": 0.08027970147246688,
+      "approval_rate_good_payers": 0.8991651876684414,
+      "mean_risk_score": 0.08896719043916412,
+      "calibration_gap": 0.014092770648035921,
+      "interpretable": true
+    }
+  },
+  "age_band": {
+    "18-29": {
+      "clients": 7135,
+      "default_rate": 0.11156271899088997,
+      "approval_rate": 0.759635599159075,
+      "default_rate_approved": 0.07675276752767528,
+      "approval_rate_good_payers": 0.7893989588263133,
+      "mean_risk_score": 0.1253632860200154,
+      "calibration_gap": -0.013800567029125424,
+      "interpretable": true
+    },
+    "30-44": {
+      "clients": 19749,
+      "default_rate": 0.09134639728593853,
+      "approval_rate": 0.8873360676489949,
+      "default_rate_approved": 0.07024651905957544,
+      "approval_rate_good_payers": 0.907940930621343,
+      "mean_risk_score": 0.08681679814224712,
+      "calibration_gap": 0.004529599143691415,
+      "interpretable": true
+    },
+    "45-59": {
+      "clients": 16780,
+      "default_rate": 0.06495828367103695,
+      "approval_rate": 0.9499404052443385,
+      "default_rate_approved": 0.05570890840652447,
+      "approval_rate_good_payers": 0.9593371574251115,
+      "mean_risk_score": 0.06498143345948927,
+      "calibration_gap": -2.314978845231741e-05,
+      "interpretable": true
+    },
+    "60+": {
+      "clients": 5537,
+      "default_rate": 0.05093010655589669,
+      "approval_rate": 0.9823008849557522,
+      "default_rate_approved": 0.04688361831218974,
+      "approval_rate_good_payers": 0.9864890580399619,
+      "mean_risk_score": 0.051820004038813705,
+      "calibration_gap": -0.0008898974829170125,
+      "interpretable": true
+    }
+  }
+}
